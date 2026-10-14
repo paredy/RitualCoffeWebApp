@@ -1,0 +1,19 @@
+# Dependencias
+node_modules/
+
+# Compilaciones
+dist/
+coverage/
+*.tsbuildinfo
+
+# Variables privadas
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
