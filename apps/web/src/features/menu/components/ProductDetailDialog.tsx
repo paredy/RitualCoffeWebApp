@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { Product } from '../types/menu';
-import { AdaptiveDialog, Badge, Button, MethodIcon } from '../../../shared/ui';
+import { AdaptiveDialog, Badge, MethodIcon } from '../../../shared/ui';
 import { Sparkles, MapPin, Flame, Info, CheckCircle2, XCircle, Plus, Check, Coffee } from 'lucide-react';
 import { useCustomerTray } from '../context/CustomerTrayContext';
 
@@ -170,17 +170,13 @@ export function ProductDetailDialog({
             </div>
           )}
 
-          {/* Action Row: Separated buttons (Cerrar on left, Añadir on right) */}
-          <div className="pt-3 border-t border-cream-dark flex items-center justify-between gap-4 mt-auto">
-            <Button variant="outline" size="sm" onClick={onClose} className="cursor-pointer">
-              Cerrar
-            </Button>
-
-            {product.isAvailable && (
+          {/* Action Row: Primary action button only (closing is handled via X icon) */}
+          {product.isAvailable && (
+            <div className="pt-3 border-t border-cream-dark mt-auto">
               <button
                 type="button"
                 onClick={() => addItem(product)}
-                className={`inline-flex items-center justify-center gap-1.5 px-5 py-2.5 rounded-full text-xs font-semibold transition-all cursor-pointer shadow-xs ${
+                className={`w-full inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full text-xs font-semibold transition-all cursor-pointer shadow-xs ${
                   quantity > 0
                     ? 'bg-forest text-gold font-bold border border-gold/40'
                     : 'bg-gold hover:bg-gold-hover text-forest font-bold'
@@ -188,18 +184,18 @@ export function ProductDetailDialog({
               >
                 {quantity > 0 ? (
                   <>
-                    <Check className="w-3.5 h-3.5 text-gold stroke-[3]" />
+                    <Check className="w-4 h-4 text-gold stroke-[3]" />
                     <span>En lista ({quantity})</span>
                   </>
                 ) : (
                   <>
-                    <Plus className="w-3.5 h-3.5" />
+                    <Plus className="w-4 h-4" />
                     <span>Añadir a mi Selección</span>
                   </>
                 )}
               </button>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       </div>
     </AdaptiveDialog>
