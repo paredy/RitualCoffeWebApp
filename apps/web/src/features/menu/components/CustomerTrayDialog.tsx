@@ -158,7 +158,7 @@ export function CustomerTrayDialog() {
                   </button>
                 </div>
 
-                <div className="space-y-2 font-mono text-sm max-h-[40vh] overflow-y-auto pr-1">
+                <div className="space-y-2 font-mono text-sm">
                   {items.map((item) => (
                     <div key={item.product.id} className="flex justify-between items-center py-1 border-b border-forest-light/30 last:border-b-0">
                       <span className="font-bold text-cream">
@@ -181,13 +181,44 @@ export function CustomerTrayDialog() {
                 </p>
               </div>
             ) : (
-              /* Item list with controls */
-              <div className="divide-y divide-cream-dark max-h-[45vh] overflow-y-auto pr-1">
+              /* Item list without inner scrollbar to prevent double scrollbars */
+              <div className="divide-y divide-cream-dark">
                 {items.map((item) => (
                   <div
                     key={item.product.id}
-                    className="py-2.5 flex items-center justify-between gap-3"
+                    className="relative py-2.5 flex items-center justify-between gap-3"
                   >
+                    {/* Double-confirmation overlay without shifting the form layout */}
+                    {confirmDeleteId === item.product.id && (
+                      <div className="absolute inset-0 z-10 bg-cream-light/98 backdrop-blur-xs rounded-xl flex items-center justify-between px-3 border border-terracotta/40 shadow-xs animate-in fade-in duration-150">
+                        <div className="flex items-center gap-2 min-w-0 pr-2">
+                          <Trash2 className="w-4 h-4 text-terracotta shrink-0" />
+                          <span className="text-xs font-semibold text-terracotta truncate">
+                            ¿Eliminar {item.product.name}?
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2 shrink-0">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              removeItem(item.product.id);
+                              setConfirmDeleteId(null);
+                            }}
+                            className="px-2.5 py-1 rounded-lg bg-terracotta text-cream text-xs font-bold hover:bg-terracotta/90 transition-colors cursor-pointer shadow-xs"
+                          >
+                            Eliminar
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setConfirmDeleteId(null)}
+                            className="px-2.5 py-1 rounded-lg bg-cream-dark text-forest text-xs font-medium hover:bg-cream transition-colors cursor-pointer"
+                          >
+                            Cancelar
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
                     {/* Thumbnail & Name */}
                     <div className="flex items-center gap-3 flex-1 min-w-0">
                       <div className="w-11 h-11 rounded-xl overflow-hidden bg-cream-dark shrink-0">
@@ -250,39 +281,16 @@ export function CustomerTrayDialog() {
                         <Plus className="w-3.5 h-3.5" />
                       </button>
 
-                      {/* Trash button with double confirmation */}
-                      {confirmDeleteId === item.product.id ? (
-                        <div className="flex items-center gap-1 bg-terracotta/10 border border-terracotta/30 px-1.5 py-0.5 rounded-lg ml-1 animate-in fade-in duration-150">
-                          <span className="text-[10px] text-terracotta font-bold">¿Quitar?</span>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              removeItem(item.product.id);
-                              setConfirmDeleteId(null);
-                            }}
-                            className="px-1.5 py-0.5 rounded bg-terracotta text-cream text-[10px] font-bold hover:bg-terracotta/90 cursor-pointer shadow-xs"
-                          >
-                            Sí
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => setConfirmDeleteId(null)}
-                            className="px-1.5 py-0.5 rounded bg-cream-dark text-forest text-[10px] font-medium hover:bg-cream cursor-pointer"
-                          >
-                            No
-                          </button>
-                        </div>
-                      ) : (
-                        <button
-                          type="button"
-                          onClick={() => setConfirmDeleteId(item.product.id)}
-                          className="w-7 h-7 rounded-lg hover:bg-terracotta/10 text-sage hover:text-terracotta flex items-center justify-center transition-colors cursor-pointer ml-1"
-                          aria-label="Eliminar de la selección"
-                          title="Eliminar de la selección"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      )}
+                      {/* Trash button: activates overlay confirmation without moving form layout */}
+                      <button
+                        type="button"
+                        onClick={() => setConfirmDeleteId(item.product.id)}
+                        className="w-7 h-7 rounded-lg hover:bg-terracotta/10 text-sage hover:text-terracotta flex items-center justify-center transition-colors cursor-pointer ml-1"
+                        aria-label="Eliminar de la selección"
+                        title="Eliminar de la selección"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
                     </div>
                   </div>
                 ))}
