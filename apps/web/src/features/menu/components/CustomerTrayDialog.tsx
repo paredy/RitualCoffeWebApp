@@ -26,6 +26,8 @@ export function CustomerTrayDialog() {
 
   const [showBaristaView, setShowBaristaView] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [confirmClear, setConfirmClear] = useState(false);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
   const handleCopyTicket = () => {
     let text = `Ritual Coffee Lab - Mi Selección:\n`;
@@ -46,9 +48,9 @@ export function CustomerTrayDialog() {
       onClose={() => setIsTrayOpen(false)}
       maxWidth="lg"
     >
-      <div className="space-y-5">
-        {/* Header */}
-        <div className="flex items-start justify-between pb-3 border-b border-cream-dark">
+      <div className="space-y-4">
+        {/* Header (with pr-12 to prevent overlap with the close X button) */}
+        <div className="pb-3 border-b border-cream-dark pr-10 sm:pr-12">
           <div className="space-y-1">
             <div className="inline-flex items-center gap-1.5 text-gold text-xs font-semibold uppercase tracking-wider">
               <ShoppingBag className="w-3.5 h-3.5" />
@@ -61,15 +63,6 @@ export function CustomerTrayDialog() {
               Guarda tus bebidas y postres favoritos mientras navegas por la carta para recordarlos al ordenar en caja.
             </p>
           </div>
-
-          {items.length > 0 && (
-            <button
-              onClick={clearTray}
-              className="text-xs text-terracotta hover:underline font-medium cursor-pointer shrink-0 pt-1"
-            >
-              Vaciar
-            </button>
-          )}
         </div>
 
         {/* Empty state */}
@@ -83,6 +76,7 @@ export function CustomerTrayDialog() {
               Navega entre las pestañas del menú y pulsa <strong>"+ Añadir"</strong> en lo que se te antoje para tenerlo a mano en esta lista.
             </p>
             <button
+              type="button"
               onClick={() => setIsTrayOpen(false)}
               className="mt-2 px-5 py-2 rounded-xl bg-forest text-cream text-xs font-semibold hover:bg-forest/90 transition-colors cursor-pointer"
             >
@@ -90,22 +84,62 @@ export function CustomerTrayDialog() {
             </button>
           </div>
         ) : (
-          <div className="space-y-4">
-            {/* Toggle Barista View mode */}
-            <div className="flex items-center justify-between bg-gold/15 border border-gold/40 p-2.5 rounded-2xl">
-              <div className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-forest shrink-0" />
-                <span className="text-xs font-semibold text-forest">
-                  ¿Listo para pedir en el mostrador?
+          <div className="space-y-3.5">
+            {/* Barista Mode Button (clean, without 'listo para pedir' banner text) */}
+            <button
+              type="button"
+              onClick={() => setShowBaristaView(!showBaristaView)}
+              className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-forest text-gold text-xs font-bold hover:bg-forest/90 transition-colors cursor-pointer shadow-xs"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-gold" />
+              <span>{showBaristaView ? 'Ver Lista Detallada' : 'Modo Mostrar al Barista'}</span>
+            </button>
+
+            {/* Sub-header with Vaciar button (separated from top X) */}
+            {!showBaristaView && (
+              <div className="flex items-center justify-between text-xs text-sage pt-0.5">
+                <span className="font-medium">
+                  {totalItems} producto{totalItems !== 1 ? 's' : ''} en tu bandeja
                 </span>
+
+                {!confirmClear && (
+                  <button
+                    type="button"
+                    onClick={() => setConfirmClear(true)}
+                    className="text-terracotta hover:underline font-semibold cursor-pointer flex items-center gap-1"
+                  >
+                    <Trash2 className="w-3 h-3" />
+                    <span>Vaciar lista</span>
+                  </button>
+                )}
               </div>
-              <button
-                onClick={() => setShowBaristaView(!showBaristaView)}
-                className="px-3 py-1.5 rounded-lg bg-forest text-gold text-xs font-bold hover:bg-forest/90 transition-colors cursor-pointer shrink-0"
-              >
-                {showBaristaView ? 'Ver Lista Normal' : 'Modo Mostrar al Barista'}
-              </button>
-            </div>
+            )}
+
+            {/* Confirm Clear Double-check banner */}
+            {confirmClear && (
+              <div className="flex items-center justify-between p-2.5 rounded-xl bg-terracotta/10 border border-terracotta/30 text-xs animate-in fade-in duration-150">
+                <span className="text-terracotta font-semibold">¿Vaciar toda la selección?</span>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      clearTray();
+                      setConfirmClear(false);
+                    }}
+                    className="px-2.5 py-1 rounded-lg bg-terracotta text-cream font-bold text-xs hover:bg-terracotta/90 cursor-pointer shadow-xs"
+                  >
+                    Sí, vaciar
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setConfirmClear(false)}
+                    className="px-2.5 py-1 rounded-lg bg-cream-dark text-forest font-medium text-xs hover:bg-cream cursor-pointer"
+                  >
+                    Cancelar
+                  </button>
+                </div>
+              </div>
+            )}
 
             {/* Quick Barista Ticket Card */}
             {showBaristaView ? (
@@ -115,6 +149,7 @@ export function CustomerTrayDialog() {
                     ☕ Ticket para Barra
                   </span>
                   <button
+                    type="button"
                     onClick={handleCopyTicket}
                     className="inline-flex items-center gap-1 text-[11px] text-cream/80 hover:text-gold transition-colors cursor-pointer"
                   >
@@ -181,10 +216,22 @@ export function CustomerTrayDialog() {
 
                     {/* Stepper controls */}
                     <div className="flex items-center gap-1.5 shrink-0">
+                      {/* Minus button: stops at 1, never deletes */}
                       <button
-                        onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
-                        className="w-7 h-7 rounded-lg bg-cream-dark hover:bg-gold/20 text-forest flex items-center justify-center transition-colors cursor-pointer"
+                        type="button"
+                        disabled={item.quantity <= 1}
+                        onClick={() => {
+                          if (item.quantity > 1) {
+                            updateQuantity(item.product.id, item.quantity - 1);
+                          }
+                        }}
+                        className={`w-7 h-7 rounded-lg flex items-center justify-center transition-colors ${
+                          item.quantity <= 1
+                            ? 'bg-cream-dark/40 text-sage/40 cursor-not-allowed'
+                            : 'bg-cream-dark hover:bg-gold/20 text-forest cursor-pointer'
+                        }`}
                         aria-label="Disminuir"
+                        title={item.quantity <= 1 ? 'Mínimo 1 unidad' : 'Disminuir'}
                       >
                         <Minus className="w-3.5 h-3.5" />
                       </button>
@@ -193,7 +240,9 @@ export function CustomerTrayDialog() {
                         {item.quantity}
                       </span>
 
+                      {/* Plus button */}
                       <button
+                        type="button"
                         onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
                         className="w-7 h-7 rounded-lg bg-cream-dark hover:bg-gold/20 text-forest flex items-center justify-center transition-colors cursor-pointer"
                         aria-label="Aumentar"
@@ -201,13 +250,39 @@ export function CustomerTrayDialog() {
                         <Plus className="w-3.5 h-3.5" />
                       </button>
 
-                      <button
-                        onClick={() => removeItem(item.product.id)}
-                        className="w-7 h-7 rounded-lg hover:bg-terracotta/10 text-sage hover:text-terracotta flex items-center justify-center transition-colors cursor-pointer ml-1"
-                        aria-label="Eliminar de la selección"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
+                      {/* Trash button with double confirmation */}
+                      {confirmDeleteId === item.product.id ? (
+                        <div className="flex items-center gap-1 bg-terracotta/10 border border-terracotta/30 px-1.5 py-0.5 rounded-lg ml-1 animate-in fade-in duration-150">
+                          <span className="text-[10px] text-terracotta font-bold">¿Quitar?</span>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              removeItem(item.product.id);
+                              setConfirmDeleteId(null);
+                            }}
+                            className="px-1.5 py-0.5 rounded bg-terracotta text-cream text-[10px] font-bold hover:bg-terracotta/90 cursor-pointer shadow-xs"
+                          >
+                            Sí
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setConfirmDeleteId(null)}
+                            className="px-1.5 py-0.5 rounded bg-cream-dark text-forest text-[10px] font-medium hover:bg-cream cursor-pointer"
+                          >
+                            No
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => setConfirmDeleteId(item.product.id)}
+                          className="w-7 h-7 rounded-lg hover:bg-terracotta/10 text-sage hover:text-terracotta flex items-center justify-center transition-colors cursor-pointer ml-1"
+                          aria-label="Eliminar de la selección"
+                          title="Eliminar de la selección"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      )}
                     </div>
                   </div>
                 ))}
@@ -228,20 +303,11 @@ export function CustomerTrayDialog() {
                 </span>
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-2 pt-1">
-                <button
-                  type="button"
-                  onClick={() => setShowBaristaView(!showBaristaView)}
-                  className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-full bg-forest text-gold text-xs font-bold hover:bg-forest/90 transition-all cursor-pointer shadow-xs"
-                >
-                  <Sparkles className="w-3.5 h-3.5 text-gold" />
-                  <span>{showBaristaView ? 'Ver Lista Detallada' : 'Modo Mostrar al Barista'}</span>
-                </button>
-
+              <div className="pt-1">
                 <button
                   type="button"
                   onClick={() => setIsTrayOpen(false)}
-                  className="px-5 py-2.5 rounded-full bg-cream-dark text-forest text-xs font-semibold hover:bg-cream-dark/80 transition-colors cursor-pointer"
+                  className="w-full py-2.5 rounded-full bg-cream-dark hover:bg-cream-dark/80 text-forest text-xs font-semibold transition-colors cursor-pointer"
                 >
                   Continuar Explorando
                 </button>

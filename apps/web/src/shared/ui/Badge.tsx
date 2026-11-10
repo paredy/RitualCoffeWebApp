@@ -8,11 +8,11 @@ export interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
 }
 
 const variantStyles: Record<BadgeVariant, string> = {
-  gold: 'bg-gold/20 text-forest border border-gold/40 font-medium',
-  forest: 'bg-forest text-cream font-medium',
-  sage: 'bg-sage/15 text-sage border border-sage/30',
-  terracotta: 'bg-terracotta/15 text-terracotta border border-terracotta/30 font-medium',
-  cream: 'bg-cream-dark text-forest border border-forest/15',
+  gold: 'bg-gold text-forest font-bold border border-gold-hover/60 shadow-xs',
+  forest: 'bg-forest text-cream font-bold border border-forest-light/40 shadow-xs',
+  sage: 'bg-forest/95 text-cream font-bold border border-forest-light/60 shadow-xs backdrop-blur-sm',
+  terracotta: 'bg-terracotta text-cream font-bold border border-terracotta/50 shadow-xs',
+  cream: 'bg-cream-dark text-forest font-semibold border border-forest/20',
 };
 
 const sizeStyles = {

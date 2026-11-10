@@ -78,21 +78,19 @@ export function ProductDetailDialog({
 
         {/* Right Column: Information, Specs & Actions */}
         <div className="md:col-span-7 flex flex-col justify-between space-y-3">
-          {/* Header: Title, Origin, Price */}
-          <div>
+          {/* Header: Title, Origin, Price (with pr-12 to avoid overlap with modal close X) */}
+          <div className="pr-10 sm:pr-12">
             {product.origin && (
               <div className="flex items-center gap-1 text-[11px] text-sage font-medium uppercase tracking-wider mb-0.5">
                 <MapPin className="w-3 h-3 text-gold shrink-0" />
                 <span className="truncate">{product.origin}</span>
               </div>
             )}
-            <div className="flex items-start justify-between gap-3">
-              <h2 className="font-serif text-xl sm:text-2xl font-bold text-forest leading-tight">
-                {product.name}
-              </h2>
-              <span className="font-serif text-xl sm:text-2xl font-bold text-gold shrink-0">
-                {formattedPrice}
-              </span>
+            <h2 className="font-serif text-xl sm:text-2xl font-bold text-forest leading-tight">
+              {product.name}
+            </h2>
+            <div className="text-xl sm:text-2xl font-serif font-bold text-gold mt-1">
+              {formattedPrice}
             </div>
           </div>
 
@@ -172,39 +170,35 @@ export function ProductDetailDialog({
             </div>
           )}
 
-          {/* Action Row */}
-          <div className="pt-2.5 border-t border-cream-dark flex items-center justify-between gap-3 mt-auto">
-            <span className="text-[11px] text-sage italic hidden sm:inline">
-              * Pide directamente en barra a tu barista.
-            </span>
-            <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
-              {product.isAvailable && (
-                <button
-                  type="button"
-                  onClick={() => addItem(product)}
-                  className={`inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold transition-all cursor-pointer shadow-xs ${
-                    quantity > 0
-                      ? 'bg-forest text-gold font-bold border border-gold/40'
-                      : 'bg-gold hover:bg-gold-hover text-forest font-bold'
-                  }`}
-                >
-                  {quantity > 0 ? (
-                    <>
-                      <Check className="w-3.5 h-3.5 text-gold stroke-[3]" />
-                      <span>En lista ({quantity})</span>
-                    </>
-                  ) : (
-                    <>
-                      <Plus className="w-3.5 h-3.5" />
-                      <span>Añadir a mi Selección</span>
-                    </>
-                  )}
-                </button>
-              )}
-              <Button variant="outline" size="sm" onClick={onClose}>
-                Cerrar
-              </Button>
-            </div>
+          {/* Action Row: Separated buttons (Cerrar on left, Añadir on right) */}
+          <div className="pt-3 border-t border-cream-dark flex items-center justify-between gap-4 mt-auto">
+            <Button variant="outline" size="sm" onClick={onClose} className="cursor-pointer">
+              Cerrar
+            </Button>
+
+            {product.isAvailable && (
+              <button
+                type="button"
+                onClick={() => addItem(product)}
+                className={`inline-flex items-center justify-center gap-1.5 px-5 py-2.5 rounded-full text-xs font-semibold transition-all cursor-pointer shadow-xs ${
+                  quantity > 0
+                    ? 'bg-forest text-gold font-bold border border-gold/40'
+                    : 'bg-gold hover:bg-gold-hover text-forest font-bold'
+                }`}
+              >
+                {quantity > 0 ? (
+                  <>
+                    <Check className="w-3.5 h-3.5 text-gold stroke-[3]" />
+                    <span>En lista ({quantity})</span>
+                  </>
+                ) : (
+                  <>
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Añadir a mi Selección</span>
+                  </>
+                )}
+              </button>
+            )}
           </div>
         </div>
       </div>

@@ -124,12 +124,8 @@ export function WorkshopsPage() {
           Talleres & Cursos de Barismo
         </h1>
 
-        <p className="text-base sm:text-lg text-forest/85 leading-relaxed pt-2">
-          <strong>RITUAL Coffee Lab</strong> tiene más de 15 años formando a bartenders y baristas profesionales del centro del país. Somos un centro de capacitación especializado en barismo, lo que nos convierte en el único espacio destinado a la investigación y capacitación en todos los temas que rodean al café de especialidad.
-        </p>
-
-        <p className="text-xs sm:text-sm text-sage max-w-2xl mx-auto">
-          Manejamos todos los aspectos de la trazabilidad del café: desde la planta en colaboración con caficultores de las provincias de <strong>Pichincha</strong> y <strong>Loja</strong> hasta la taza en nuestra propia cafetería, dónde podrás sentir de primera mano <em>EL RITUAL de un café de verdad</em>.
+        <p className="text-sm sm:text-base text-forest/80 max-w-2xl mx-auto leading-relaxed pt-1">
+          Más de 15 años formando baristas profesionales e investigando la ciencia del café de especialidad en Ecuador, desde la finca hasta la taza.
         </p>
       </div>
 
