@@ -142,6 +142,9 @@ MONGO_ROOT_PASSWORD=REEMPLAZAR_POR_UN_SECRETO_ALEATORIO
 
 ```powershell
 docker compose --env-file infrastructure/.env -f infrastructure/compose.dev.yaml config --quiet
+
+
+
 docker compose --env-file infrastructure/.env -f infrastructure/compose.dev.yaml up -d
 docker ps
 ```
