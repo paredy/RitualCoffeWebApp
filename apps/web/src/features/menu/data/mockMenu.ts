@@ -111,7 +111,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     allergens: ['Lácteos'],
     isAvailable: true,
     isSpecialty: false,
-    image: 'https://images.unsplash.com/photo-1607681086579-2f586d01f988?q=80&w=800&auto=format&fit=crop',
+    image: '/products/mocaccino.jpg',
   },
   {
     id: 'esp-8',
@@ -367,7 +367,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     temperature: 'Frío',
     isAvailable: true,
     isSpecialty: false,
-    image: 'https://images.unsplash.com/photo-1548839140-29a749e1bc4e?q=80&w=800&auto=format&fit=crop',
+    image: '/products/agua-mineral.jpg',
   },
 
   // ================= CÓCTELES CON CAFÉ =================
@@ -441,7 +441,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     temperature: 'Frío',
     isAvailable: true,
     isSpecialty: true,
-    image: 'https://images.unsplash.com/photo-1578763460786-9a25b2935824?q=80&w=800&auto=format&fit=crop',
+    image: '/products/espresso-martini.jpg',
   },
   {
     id: 'coct-7',

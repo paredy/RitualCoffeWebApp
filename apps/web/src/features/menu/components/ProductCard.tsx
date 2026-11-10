@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import type { Product } from '../types/menu';
 import { Badge, Card, MethodIcon } from '../../../shared/ui';
 import { Sparkles, Eye, Coffee, Plus, Check } from 'lucide-react';
@@ -11,6 +12,7 @@ interface ProductCardProps {
 export function ProductCard({ product, onSelect }: ProductCardProps) {
   const { addItem, getItemQuantity } = useCustomerTray();
   const quantityInTray = getItemQuantity(product.id);
+  const [imageError, setImageError] = useState(false);
 
   const formattedPrice = new Intl.NumberFormat('en-US', {
     style: 'currency',
@@ -30,16 +32,18 @@ export function ProductCard({ product, onSelect }: ProductCardProps) {
       <div>
         {/* Product Image Container */}
         <div className="relative w-full h-48 sm:h-52 rounded-xl overflow-hidden bg-cream-dark mb-4">
-          {product.image ? (
+          {product.image && !imageError ? (
             <img
               src={product.image}
               alt={product.name}
+              onError={() => setImageError(true)}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
               loading="lazy"
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center text-forest/40">
-              <Coffee className="w-12 h-12" />
+            <div className="w-full h-full flex flex-col items-center justify-center text-forest/40 bg-cream-dark">
+              <Coffee className="w-10 h-10 mb-1 opacity-60" />
+              <span className="text-[11px] font-medium text-sage">Ritual Coffee Lab</span>
             </div>
           )}
 

@@ -1,6 +1,7 @@
+import { useState } from 'react';
 import type { Product } from '../types/menu';
 import { AdaptiveDialog, Badge, Button, MethodIcon } from '../../../shared/ui';
-import { Sparkles, MapPin, Flame, Info, CheckCircle2, XCircle, Plus, Check } from 'lucide-react';
+import { Sparkles, MapPin, Flame, Info, CheckCircle2, XCircle, Plus, Check, Coffee } from 'lucide-react';
 import { useCustomerTray } from '../context/CustomerTrayContext';
 
 interface ProductDetailDialogProps {
@@ -18,6 +19,7 @@ export function ProductDetailDialog({
 
   const { addItem, getItemQuantity } = useCustomerTray();
   const quantity = getItemQuantity(product.id);
+  const [imageError, setImageError] = useState(false);
 
   const formattedPrice = new Intl.NumberFormat('en-US', {
     style: 'currency',
@@ -32,12 +34,19 @@ export function ProductDetailDialog({
         {/* Left Column: Image & Badges */}
         <div className="md:col-span-5 flex flex-col">
           <div className="relative w-full h-40 sm:h-48 md:h-full md:min-h-[290px] md:max-h-[380px] rounded-2xl overflow-hidden bg-cream-dark shadow-inner">
-            {product.image && (
+            {product.image && !imageError ? (
               <img
                 src={product.image}
                 alt={product.name}
+                onError={() => setImageError(true)}
                 className="w-full h-full object-cover"
               />
+            ) : (
+              <div className="w-full h-full flex flex-col items-center justify-center text-forest/40 bg-cream-dark p-6 text-center">
+                <Coffee className="w-12 h-12 mb-2 opacity-60" />
+                <span className="text-xs font-serif font-bold text-forest">{product.name}</span>
+                <span className="text-[11px] text-sage">Ritual Coffee Lab</span>
+              </div>
             )}
             <div className="absolute top-2.5 left-2.5 flex flex-wrap gap-1.5 z-10">
               {product.isSpecialty && (
