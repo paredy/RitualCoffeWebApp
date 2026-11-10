@@ -7,7 +7,7 @@ export interface ModalProps {
   onClose: () => void;
   title?: string;
   children: ReactNode;
-  maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl';
+  maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl';
 }
 
 const maxWidthMap = {
@@ -16,6 +16,8 @@ const maxWidthMap = {
   lg: 'max-w-lg',
   xl: 'max-w-xl',
   '2xl': 'max-w-2xl',
+  '3xl': 'max-w-3xl',
+  '4xl': 'max-w-4xl',
 };
 
 export function Modal({
@@ -56,12 +58,12 @@ export function Modal({
       <div
         role="dialog"
         aria-modal="true"
-        className={`relative z-10 w-full ${maxWidthMap[maxWidth]} bg-cream-light border border-gold/30 rounded-3xl p-6 md:p-8 shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200`}
+        className={`relative z-10 w-full ${maxWidthMap[maxWidth]} bg-cream-light border border-gold/30 rounded-3xl p-5 sm:p-6 md:p-7 shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200`}
       >
         <button
           onClick={onClose}
           aria-label="Cerrar modal"
-          className="absolute top-5 right-5 p-2 rounded-full text-sage hover:text-forest hover:bg-cream-dark transition-colors cursor-pointer"
+          className="absolute top-4 right-4 sm:top-5 sm:right-5 p-2 rounded-full text-sage hover:text-forest hover:bg-cream-dark transition-colors cursor-pointer z-20"
         >
           <X className="w-5 h-5" />
         </button>

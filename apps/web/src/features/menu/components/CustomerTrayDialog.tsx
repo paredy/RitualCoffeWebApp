@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useCustomerTray } from '../context/CustomerTrayContext';
-import { AdaptiveDialog, WhatsAppIcon } from '../../../shared/ui';
+import { AdaptiveDialog } from '../../../shared/ui';
 import {
   ShoppingBag,
   Plus,
@@ -27,19 +27,8 @@ export function CustomerTrayDialog() {
   const [showBaristaView, setShowBaristaView] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  const formattedWhatsAppText = () => {
-    let msg = `Hola Ritual Coffee Lab, esta es mi selección para ordenar en barra:\n`;
-    items.forEach((item) => {
-      msg += `• ${item.quantity}x ${item.product.name} ($${(
-        item.product.price * item.quantity
-      ).toFixed(2)})\n`;
-    });
-    msg += `Total estimado: $${totalPrice.toFixed(2)} USD`;
-    return encodeURIComponent(msg);
-  };
-
   const handleCopyTicket = () => {
-    let text = `Ritual Coffee Lab - Mi Pedido:\n`;
+    let text = `Ritual Coffee Lab - Mi Selección:\n`;
     items.forEach((item) => {
       text += `• ${item.quantity}x ${item.product.name} - $${(
         item.product.price * item.quantity
@@ -57,19 +46,19 @@ export function CustomerTrayDialog() {
       onClose={() => setIsTrayOpen(false)}
       maxWidth="lg"
     >
-      <div className="space-y-6">
+      <div className="space-y-5">
         {/* Header */}
-        <div className="flex items-start justify-between pb-4 border-b border-cream-dark">
+        <div className="flex items-start justify-between pb-3 border-b border-cream-dark">
           <div className="space-y-1">
             <div className="inline-flex items-center gap-1.5 text-gold text-xs font-semibold uppercase tracking-wider">
               <ShoppingBag className="w-3.5 h-3.5" />
-              <span>Notas de Selección ({totalItems})</span>
+              <span>Mi Selección ({totalItems})</span>
             </div>
             <h2 className="font-serif text-2xl font-bold text-forest">
-              Mi Selección para la Barra
+              Bandeja para Ordenar
             </h2>
-            <p className="text-xs sm:text-sm text-sage leading-relaxed">
-              Guarda tus bebidas y postres favoritos mientras navegas por la carta para recordarlos al ordenar.
+            <p className="text-xs text-sage leading-relaxed">
+              Guarda tus bebidas y postres favoritos mientras navegas por la carta para recordarlos al ordenar en caja.
             </p>
           </div>
 
@@ -101,27 +90,27 @@ export function CustomerTrayDialog() {
             </button>
           </div>
         ) : (
-          <div className="space-y-5">
+          <div className="space-y-4">
             {/* Toggle Barista View mode */}
-            <div className="flex items-center justify-between bg-gold/15 border border-gold/40 p-3 rounded-2xl">
+            <div className="flex items-center justify-between bg-gold/15 border border-gold/40 p-2.5 rounded-2xl">
               <div className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-forest" />
+                <Sparkles className="w-4 h-4 text-forest shrink-0" />
                 <span className="text-xs font-semibold text-forest">
                   ¿Listo para pedir en el mostrador?
                 </span>
               </div>
               <button
                 onClick={() => setShowBaristaView(!showBaristaView)}
-                className="px-3 py-1.5 rounded-lg bg-forest text-gold text-xs font-bold hover:bg-forest/90 transition-colors cursor-pointer"
+                className="px-3 py-1.5 rounded-lg bg-forest text-gold text-xs font-bold hover:bg-forest/90 transition-colors cursor-pointer shrink-0"
               >
-                {showBaristaView ? 'Ver Detalles' : 'Modo Mostrar al Barista'}
+                {showBaristaView ? 'Ver Lista Normal' : 'Modo Mostrar al Barista'}
               </button>
             </div>
 
             {/* Quick Barista Ticket Card */}
             {showBaristaView ? (
-              <div className="p-5 bg-forest text-cream rounded-2xl border-2 border-gold space-y-4 shadow-md animate-in fade-in duration-200">
-                <div className="flex items-center justify-between pb-3 border-b border-forest-light">
+              <div className="p-4 sm:p-5 bg-forest text-cream rounded-2xl border-2 border-gold space-y-3.5 shadow-md animate-in fade-in duration-200">
+                <div className="flex items-center justify-between pb-2.5 border-b border-forest-light">
                   <span className="text-xs uppercase tracking-widest text-gold font-bold">
                     ☕ Ticket para Barra
                   </span>
@@ -134,39 +123,39 @@ export function CustomerTrayDialog() {
                   </button>
                 </div>
 
-                <div className="space-y-2 font-mono text-sm">
+                <div className="space-y-2 font-mono text-sm max-h-[40vh] overflow-y-auto pr-1">
                   {items.map((item) => (
-                    <div key={item.product.id} className="flex justify-between items-center py-1">
+                    <div key={item.product.id} className="flex justify-between items-center py-1 border-b border-forest-light/30 last:border-b-0">
                       <span className="font-bold text-cream">
                         {item.quantity}x {item.product.name}
                       </span>
-                      <span className="text-gold font-semibold">
+                      <span className="text-gold font-semibold shrink-0 ml-2">
                         ${(item.product.price * item.quantity).toFixed(2)}
                       </span>
                     </div>
                   ))}
                 </div>
 
-                <div className="pt-3 border-t border-forest-light flex justify-between items-center font-mono text-base font-bold">
+                <div className="pt-2.5 border-t border-forest-light flex justify-between items-center font-mono text-base font-bold">
                   <span>Total Estimado:</span>
                   <span className="text-gold text-lg">${totalPrice.toFixed(2)} USD</span>
                 </div>
 
-                <p className="text-[11px] text-cream/70 text-center italic pt-1">
+                <p className="text-[11px] text-cream/70 text-center italic pt-0.5">
                   * Muestra esta pantalla al barista al momento de ordenar en caja.
                 </p>
               </div>
             ) : (
               /* Item list with controls */
-              <div className="divide-y divide-cream-dark max-h-[50vh] overflow-y-auto pr-1">
+              <div className="divide-y divide-cream-dark max-h-[45vh] overflow-y-auto pr-1">
                 {items.map((item) => (
                   <div
                     key={item.product.id}
-                    className="py-3 flex items-center justify-between gap-3"
+                    className="py-2.5 flex items-center justify-between gap-3"
                   >
                     {/* Thumbnail & Name */}
                     <div className="flex items-center gap-3 flex-1 min-w-0">
-                      <div className="w-12 h-12 rounded-xl overflow-hidden bg-cream-dark shrink-0">
+                      <div className="w-11 h-11 rounded-xl overflow-hidden bg-cream-dark shrink-0">
                         {item.product.image ? (
                           <img
                             src={item.product.image}
@@ -191,7 +180,7 @@ export function CustomerTrayDialog() {
                     </div>
 
                     {/* Stepper controls */}
-                    <div className="flex items-center gap-2 shrink-0">
+                    <div className="flex items-center gap-1.5 shrink-0">
                       <button
                         onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
                         className="w-7 h-7 rounded-lg bg-cream-dark hover:bg-gold/20 text-forest flex items-center justify-center transition-colors cursor-pointer"
@@ -226,31 +215,31 @@ export function CustomerTrayDialog() {
             )}
 
             {/* Total and actions */}
-            <div className="pt-4 border-t border-cream-dark space-y-4">
+            <div className="pt-3 border-t border-cream-dark space-y-3">
               <div className="flex items-center justify-between">
                 <div>
                   <span className="text-xs text-sage block">Total Estimado</span>
-                  <span className="text-xs text-sage/70 font-sans">
+                  <span className="text-[11px] text-sage/70 font-sans">
                     {totalItems} producto{totalItems !== 1 ? 's' : ''} seleccionado{totalItems !== 1 ? 's' : ''}
                   </span>
                 </div>
-                <span className="font-serif text-2xl font-bold text-forest">
+                <span className="font-serif text-xl sm:text-2xl font-bold text-forest">
                   ${totalPrice.toFixed(2)} USD
                 </span>
               </div>
 
               <div className="flex flex-col sm:flex-row gap-2 pt-1">
-                <a
-                  href={`https://wa.me/593998040381?text=${formattedWhatsAppText()}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-full bg-forest text-gold text-xs font-bold hover:bg-forest/90 transition-all cursor-pointer shadow-sm"
+                <button
+                  type="button"
+                  onClick={() => setShowBaristaView(!showBaristaView)}
+                  className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-full bg-forest text-gold text-xs font-bold hover:bg-forest/90 transition-all cursor-pointer shadow-xs"
                 >
-                  <WhatsAppIcon className="w-4 h-4 fill-current" />
-                  <span>Enviar Lista por WhatsApp</span>
-                </a>
+                  <Sparkles className="w-3.5 h-3.5 text-gold" />
+                  <span>{showBaristaView ? 'Ver Lista Detallada' : 'Modo Mostrar al Barista'}</span>
+                </button>
 
                 <button
+                  type="button"
                   onClick={() => setIsTrayOpen(false)}
                   className="px-5 py-2.5 rounded-full bg-cream-dark text-forest text-xs font-semibold hover:bg-cream-dark/80 transition-colors cursor-pointer"
                 >

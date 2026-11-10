@@ -46,7 +46,7 @@ export function BottomSheet({
       <div
         role="dialog"
         aria-modal="true"
-        className="relative z-10 w-full max-h-[90vh] bg-cream-light border-t-2 border-gold/40 rounded-t-3xl p-6 shadow-2xl flex flex-col animate-in slide-in-from-bottom duration-300"
+        className="relative z-10 w-full max-h-[90vh] bg-cream-light border-t-2 border-gold/40 rounded-t-3xl p-4 sm:p-6 shadow-2xl flex flex-col animate-in slide-in-from-bottom duration-300"
       >
         {/* Drag handle pill */}
         <div className="w-12 h-1.5 bg-sage/30 rounded-full mx-auto mb-4" />
