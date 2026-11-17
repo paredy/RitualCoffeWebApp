@@ -5,6 +5,9 @@
   "private": true,
   "packageManager": "pnpm@10.34.7",
   "scripts": {
+    "clean": "node scripts/clean.mjs",
+    "build": "pnpm run build:api && pnpm run build:web",
+    "rebuild": "pnpm run clean && pnpm run build",
     "dev:web": "pnpm --dir apps/web dev",
     "dev:api": "pnpm --dir apps/api start:dev",
     "build:web": "pnpm --dir apps/web build",
