@@ -6,6 +6,11 @@ Aplicación web progresiva (**PWA**) para una cafetería. Incluye un sitio públ
 
 ## 1. Funciones previstas
 
+La capa de modelos de MongoDB incluye `users`, `categories`, `products`, `orders`,
+`invoices`, `audit_logs` y `coffee_types`. Consulta [el diseño de datos, las pruebas y la guía de MongoDB Compass](docs/database.md).
+Para crear las colecciones e índices en el MongoDB local configurado: `pnpm.cmd --dir apps/api db:prepare`.
+Los modelos no implementan todavía los servicios ni endpoints de negocio.
+
 **Vista pública (sin login)**
 - Página de inicio e información de la cafetería.
 - Menú con categorías, productos, precios y disponibilidad.
@@ -244,7 +249,7 @@ pnpm --dir apps/api test
 pnpm --dir apps/api test:e2e
 ```
 
-Las pruebas de NestJS actuales cubren la plantilla inicial; **no prueban todavía productos, pedidos o permisos**. La conexión y operaciones de prueba en MongoDB ya se validaron manualmente durante la configuración original; cada colaborador debe comprobar también su conexión local al arrancar la API.
+Las pruebas unitarias cubren los siete esquemas y las validaciones compartidas. Las e2e usan Fastify, verifican índices y persistencia en la base local aislada `ritual_coffee_test`, y eliminan únicamente sus propios documentos. Sus credenciales y requisitos se explican en [la documentación de datos](docs/database.md). Los permisos y la autenticación siguen pendientes.
 
 ## 9. Comandos de Docker útiles
 
