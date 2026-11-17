@@ -240,6 +240,19 @@ Detener cada servidor con `Ctrl + C`. Docker puede seguir activo cuando se cierr
 
 ## 8. Compilar y ejecutar pruebas
 
+Para limpiar y volver a compilar backend y frontend con un solo comando:
+
+```powershell
+pnpm.cmd run rebuild
+```
+
+Usa `run rebuild` porque `pnpm rebuild` es un comando interno del gestor de paquetes.
+También puedes ejecutar `pnpm.cmd clean` para eliminar únicamente las salidas de compilación
+y las cachés de TypeScript, o `pnpm.cmd build` para compilar ambas aplicaciones sin limpieza previa.
+La limpieza conserva dependencias, archivos `.env` y datos de MongoDB. Detén los servidores
+en ejecución con `Ctrl + C` antes de limpiar. En PowerShell, `pnpm.cmd` evita posibles bloqueos
+de `pnpm.ps1` por la política de ejecución de scripts.
+
 Desde la raíz:
 
 ```powershell
