@@ -1,19 +1,19 @@
-import { createBrowserRouter } from 'react-router';
+import { createBrowserRouter, Navigate } from 'react-router';
 import { PublicLayout } from './layouts/PublicLayout';
 import { BaristaLayout } from './layouts/BaristaLayout';
 
-function Placeholder({ title }: { title: string }) {
-  return (
-    <section className="mx-auto max-w-6xl p-8">
-      <h1 className="text-3xl font-bold text-coffee-900">
-        {title}
-      </h1>
-      <p className="mt-4 text-gray-600">
-        Página en construcción.
-      </p>
-    </section>
-  );
-}
+// Public pages
+import { HomePage } from '../features/public-site/pages/HomePage';
+import { OurCoffeePage } from '../features/public-site/pages/OurCoffeePage';
+import { LabPage } from '../features/public-site/pages/LabPage';
+import { WorkshopsPage } from '../features/public-site/pages/WorkshopsPage';
+import { VisitUsPage } from '../features/public-site/pages/VisitUsPage';
+import { MenuPage } from '../features/menu/pages/MenuPage';
+
+// Barista pages
+import { BaristaOrdersPage } from '../features/barista/pages/BaristaOrdersPage';
+import { BaristaPOSPage } from '../features/barista/pages/BaristaPOSPage';
+import { BaristaMenuPage } from '../features/barista/pages/BaristaMenuPage';
 
 export const router = createBrowserRouter([
   {
@@ -22,15 +22,27 @@ export const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <Placeholder title="Bienvenido a Ritual Coffee" />,
+        Component: HomePage,
+      },
+      {
+        path: 'nuestro-cafe',
+        Component: OurCoffeePage,
+      },
+      {
+        path: 'laboratorio',
+        Component: LabPage,
+      },
+      {
+        path: 'talleres',
+        Component: WorkshopsPage,
       },
       {
         path: 'menu',
-        element: <Placeholder title="Nuestro menú" />,
+        Component: MenuPage,
       },
       {
-        path: 'barista/login',
-        element: <Placeholder title="Iniciar sesión" />,
+        path: 'visitanos',
+        Component: VisitUsPage,
       },
     ],
   },
@@ -40,20 +52,24 @@ export const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <Placeholder title="Dashboard del barista" />,
-      },
-      {
-        path: 'menu',
-        element: <Placeholder title="Administrar menú" />,
+        element: <Navigate to="/barista/orders" replace />,
       },
       {
         path: 'orders',
-        element: <Placeholder title="Gestión de órdenes" />,
+        Component: BaristaOrdersPage,
+      },
+      {
+        path: 'pos',
+        Component: BaristaPOSPage,
+      },
+      {
+        path: 'menu',
+        Component: BaristaMenuPage,
       },
     ],
   },
   {
     path: '*',
-    element: <Placeholder title="404 - Página no encontrada" />,
+    Component: HomePage,
   },
 ]);
