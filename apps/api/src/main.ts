@@ -4,6 +4,7 @@ import {
   type NestFastifyApplication,
 } from '@nestjs/platform-fastify';
 import { AppModule } from './app.module.js';
+import { configureHttpApp } from './common/configure-http-app.js';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
@@ -11,8 +12,7 @@ async function bootstrap() {
     new FastifyAdapter(),
   );
 
-  // Prefijo para todas las rutas de la API
-  app.setGlobalPrefix('api/v1');
+  configureHttpApp(app);
 
   // Puerto del backend
   const port = Number(process.env.PORT ?? 3000);
