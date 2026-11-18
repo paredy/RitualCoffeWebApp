@@ -1,8 +1,9 @@
 # Modelos de datos de Ritual Coffee
 
 La capa de datos usa NestJS, Mongoose y MongoDB 8. Los siete modelos están registrados
-en módulos por funcionalidad. No incluye controladores de negocio, CRUD, autenticación,
-pagos ni emisión de comprobantes electrónicos.
+en módulos por funcionalidad. La lectura pública del catálogo se expone mediante los
+[endpoints del menú](endpoints-publicos.md). La administración del catálogo, autenticación,
+pagos y emisión de comprobantes electrónicos siguen pendientes.
 
 ## Convenciones
 
