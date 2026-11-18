@@ -10,6 +10,7 @@ import { randomUUID } from 'node:crypto';
 import { AppModule } from '../src/app.module.js';
 import { modelDefinitions } from '../src/database/model-definitions.js';
 import { testMongoUri } from './mongo-test-connection.js';
+import { configureHttpApp } from '../src/common/configure-http-app.js';
 
 describe('API Fastify y modelos MongoDB (e2e)', () => {
   let app: NestFastifyApplication | undefined;
@@ -38,7 +39,7 @@ describe('API Fastify y modelos MongoDB (e2e)', () => {
     app = fixture.createNestApplication<NestFastifyApplication>(
       new FastifyAdapter(),
     );
-    app.setGlobalPrefix('api/v1');
+    configureHttpApp(app);
     await app.init();
     await app.getHttpAdapter().getInstance().ready();
     for (const definition of modelDefinitions) {

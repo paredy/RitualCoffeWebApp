@@ -60,12 +60,17 @@ export function isDocumentArray(value: unknown): value is object[] {
   );
 }
 
+export function moneyToString(value: Types.Decimal128 | string): string {
+  if (!isValidMoney(value)) throw new Error('Importe decimal inválido');
+  const [whole, fraction = ''] = value.toString().split('.');
+  return `${whole}.${fraction.padEnd(2, '0')}`;
+}
+
 function jsonMoney(value: unknown): unknown {
   if (value instanceof Types.Decimal128) {
     const text = value.toString();
     if (!isValidMoney(value)) return text;
-    const [whole, fraction = ''] = text.split('.');
-    return `${whole}.${fraction.padEnd(2, '0')}`;
+    return moneyToString(value);
   }
   if (Array.isArray(value)) return value.map(jsonMoney);
   if (
