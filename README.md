@@ -4,7 +4,17 @@ Aplicación web progresiva (**PWA**) para una cafetería. Incluye un sitio públ
 
 > **Estado actual:** repositorio base en desarrollo. Están configurados React + Vite + TypeScript + Tailwind CSS + React Router; NestJS + Fastify + Mongoose; MongoDB local con Docker Compose. Las rutas del barista son **pantallas provisionales sin autenticación**: no usar este estado en producción. No están implementados todavía el CRUD real del menú, el login ni la gestión real de órdenes. La instalación como PWA también está pendiente de configurar y verificar.
 
+La API incluye consulta pública de categorías y productos publicados/disponibles mediante
+`GET /api/v1/menu/categories`, `GET /api/v1/menu/products` y `GET /api/v1/menu/products/:slug`.
+Consulta los parámetros, respuestas y reglas de publicación en [la guía de endpoints públicos](docs/endpoints-publicos.md).
+El frontend todavía no consume estos endpoints.
+
 ## 1. Funciones previstas
+
+La capa de modelos de MongoDB incluye `users`, `categories`, `products`, `orders`,
+`invoices`, `audit_logs` y `coffee_types`. Consulta [el diseño de datos, las pruebas y la guía de MongoDB Compass](docs/database.md).
+Para crear las colecciones e índices en el MongoDB local configurado: `pnpm.cmd --dir apps/api db:prepare`.
+Los modelos cuentan con servicios y endpoints de lectura para el menú público. La administración del catálogo y la gestión de pedidos siguen pendientes.
 
 **Vista pública (sin login)**
 - Página de inicio e información de la cafetería.
@@ -215,6 +225,10 @@ pnpm dev:api
 
 Abrir `http://localhost:3000/api/v1`: actualmente devuelve `Hello World!`.
 
+También puedes consultar `http://localhost:3000/api/v1/menu/categories` y
+`http://localhost:3000/api/v1/menu/products`. Si la base está vacía, ambos listados devolverán
+`data: []`; las pruebas generan sus datos únicamente en la base aislada de pruebas.
+
 **Terminal 2 — Web**
 
 ```powershell
@@ -238,6 +252,19 @@ Detener cada servidor con `Ctrl + C`. Docker puede seguir activo cuando se cierr
 
 ## 8. Compilar y ejecutar pruebas
 
+Para limpiar y volver a compilar backend y frontend con un solo comando:
+
+```powershell
+pnpm.cmd run rebuild
+```
+
+Usa `run rebuild` porque `pnpm rebuild` es un comando interno del gestor de paquetes.
+También puedes ejecutar `pnpm.cmd clean` para eliminar únicamente las salidas de compilación
+y las cachés de TypeScript, o `pnpm.cmd build` para compilar ambas aplicaciones sin limpieza previa.
+La limpieza conserva dependencias, archivos `.env` y datos de MongoDB. Detén los servidores
+en ejecución con `Ctrl + C` antes de limpiar. En PowerShell, `pnpm.cmd` evita posibles bloqueos
+de `pnpm.ps1` por la política de ejecución de scripts.
+
 Desde la raíz:
 
 ```powershell
@@ -247,7 +274,7 @@ pnpm --dir apps/api test
 pnpm --dir apps/api test:e2e
 ```
 
-Las pruebas de NestJS actuales cubren la plantilla inicial; **no prueban todavía productos, pedidos o permisos**. La conexión y operaciones de prueba en MongoDB ya se validaron manualmente durante la configuración original; cada colaborador debe comprobar también su conexión local al arrancar la API.
+Las pruebas unitarias cubren los siete esquemas y las validaciones compartidas. Las e2e usan Fastify, verifican índices y persistencia en la base local aislada `ritual_coffee_test`, y eliminan únicamente sus propios documentos. Sus credenciales y requisitos se explican en [la documentación de datos](docs/database.md). Los permisos y la autenticación siguen pendientes.
 
 ## 9. Comandos de Docker útiles
 
