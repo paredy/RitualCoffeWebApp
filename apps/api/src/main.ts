@@ -12,7 +12,7 @@ async function bootstrap() {
     new FastifyAdapter(),
   );
 
-  configureHttpApp(app);
+  await configureHttpApp(app);
 
   // Puerto del backend
   const port = Number(process.env.PORT ?? 3000);

@@ -1,9 +1,9 @@
 # Modelos de datos de Ritual Coffee
 
-La capa de datos usa NestJS, Mongoose y MongoDB 8. Los siete modelos están registrados
+La capa de datos usa NestJS, Mongoose y MongoDB 8. Los siete modelos de negocio y el modelo técnico de sesiones están registrados
 en módulos por funcionalidad. La lectura pública del catálogo se expone mediante los
-[endpoints del menú](endpoints-publicos.md). La administración del catálogo, autenticación,
-pagos y emisión de comprobantes electrónicos siguen pendientes.
+[endpoints del menú](endpoints-publicos.md). La autenticación del personal está documentada
+en [autenticacion.md](autenticacion.md). La administración del catálogo, pagos y emisión de comprobantes electrónicos siguen pendientes.
 
 ## Convenciones
 
@@ -28,16 +28,32 @@ pagos y emisión de comprobantes electrónicos siguen pendientes.
 | Campos | Tipo y reglas |
 | --- | --- |
 | `name` | String obligatorio, trim, 2–100 caracteres |
+| `username` | String obligatorio y único, 3–30 caracteres, trim y minúsculas; letras ASCII/números al inicio, además punto, guion y guion bajo |
 | `email` | String obligatorio, trim, minúsculas, formato básico de email |
 | `passwordHash` | String obligatorio, excluido de consultas normales (`select: false`) y de `toJSON()` |
 | `role` | Obligatorio: `admin` o `barista` |
 | `isActive` | Boolean, `true` por defecto |
 | `lastLoginAt` | Date o null, null por defecto |
 
-Índice único: `email`. No hay cuentas de clientes.
-El futuro servicio de usuarios debe generar un hash seguro antes de guardar: el esquema no
-implementa hashing ni puede demostrar criptográficamente que una cadena sea un hash válido.
+Índices únicos: `email` y `username`. No hay cuentas de clientes. Login utiliza username.
+El comando de creación del administrador genera Argon2id mediante `PasswordService`; los futuros
+servicios de usuarios deben reutilizarlo antes de guardar: el esquema no puede demostrar
+criptográficamente que una cadena sea un hash válido.
 No registrar hashes en auditoría ni devolverlos en DTO, incluso con consultas `lean()` y selección explícita.
+
+## sessions — `Session` (colección técnica)
+
+| Campos | Tipo y reglas |
+| --- | --- |
+| `tokenHash` | SHA-256 del identificador de sesión, String hexadecimal de 64 caracteres, obligatorio y único; excluido de consultas normales y JSON |
+| `userId` | ObjectId obligatorio → `User`, con índice |
+| `expiresAt` | Date obligatoria, índice TTL con `expireAfterSeconds: 0` |
+| `createdAt`, `updatedAt` | Timestamps automáticos |
+
+No se guardan cookies ni identificadores utilizables en texto plano. El servicio comprueba
+si la sesión está vencida en cada solicitud, independientemente del borrado diferido del TTL.
+Las sesiones se revocan al cerrar sesión; el estado y rol del usuario se consultan en cada
+petición autenticada. Para reglas de cookies, CSRF y vencimiento consulta [autenticacion.md](autenticacion.md).
 
 ## categories — `Category`
 
@@ -247,7 +263,7 @@ colecciones de `ritual_coffee` con sus índices, todas con cero documentos; no s
    el valor local de `MONGO_USER` y `MONGO_PASSWORD` de `apps/api/.env`.
 3. Indica `ritual_coffee` como **Authentication Database** y conecta.
 4. Abre `ritual_coffee`: deben aparecer `users`, `categories`, `products`, `orders`, `invoices`,
-   `audit_logs` y `coffee_types`. En **Indexes** puedes revisar los índices creados.
+   `audit_logs`, `coffee_types` y la colección técnica `sessions`. En **Indexes** puedes revisar los índices creados.
 5. **Documents** muestra los documentos guardados. **Schema** analiza una muestra de esos
    documentos; no importa el esquema de Mongoose. Al estar vacías las colecciones no habrá
    campos que inferir. Consulta las tablas de este documento para conocer el diseño completo.
