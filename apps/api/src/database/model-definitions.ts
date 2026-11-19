@@ -1,4 +1,5 @@
 import type { ModelDefinition } from '@nestjs/mongoose';
+import { Session, SessionSchema } from '../auth/schemas/session.schema.js';
 import { User, UserSchema } from '../users/schemas/user.schema.js';
 import {
   Category,
@@ -25,4 +26,5 @@ export const modelDefinitions: ModelDefinition[] = [
   { name: Invoice.name, schema: InvoiceSchema },
   { name: AuditLog.name, schema: AuditLogSchema },
   { name: CoffeeType.name, schema: CoffeeTypeSchema },
+  { name: Session.name, schema: SessionSchema },
 ];

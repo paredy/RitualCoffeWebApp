@@ -11,6 +11,7 @@ import { OrdersModule } from './orders/orders.module.js';
 import { InvoicesModule } from './invoices/invoices.module.js';
 import { AuditLogsModule } from './audit-logs/audit-logs.module.js';
 import { CoffeeTypesModule } from './coffee-types/coffee-types.module.js';
+import { AuthModule } from './auth/auth.module.js';
 
 @Module({
   imports: [
@@ -45,6 +46,7 @@ import { CoffeeTypesModule } from './coffee-types/coffee-types.module.js';
     InvoicesModule,
     AuditLogsModule,
     CoffeeTypesModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
