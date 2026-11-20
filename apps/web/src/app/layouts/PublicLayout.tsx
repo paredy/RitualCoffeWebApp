@@ -49,15 +49,24 @@ function PublicLayoutContent() {
             {/* Desktop Navigation Links */}
             <nav className="hidden lg:flex items-center space-x-1 xl:space-x-2">
               {navLinks.map((link) => {
-                const isActive = location.pathname === link.to;
+                const isActive = location.pathname === link.to || (link.to !== '/' && location.pathname.startsWith(link.to));
+                const isMenuLink = link.to === '/menu';
+
                 return (
                   <NavLink
                     key={link.to}
                     to={link.to}
-                    className={`px-3.5 py-2 text-sm font-medium rounded-full transition-all duration-200 ${isActive
-                        ? 'bg-forest text-cream shadow-xs font-semibold'
+                    className={`px-3.5 py-2 text-sm font-medium transition-all duration-200 rounded-full ${
+                      isMenuLink
+                        ? 'bg-gold text-forest font-bold shadow-xs hover:bg-gold-hover'
                         : 'text-forest/80 hover:text-forest hover:bg-forest/5'
-                      }`}
+                    } ${
+                      isActive
+                        ? isMenuLink
+                          ? 'underline decoration-forest decoration-2 underline-offset-4'
+                          : 'underline decoration-gold decoration-2 underline-offset-8 text-forest font-bold'
+                        : ''
+                    }`}
                   >
                     {link.label}
                   </NavLink>
@@ -155,19 +164,38 @@ function PublicLayoutContent() {
           {/* Navigation Links */}
           <div className="flex-1 overflow-y-auto px-6 py-8 flex flex-col space-y-4">
             {navLinks.map((link) => {
-              const isActive = location.pathname === link.to;
+              const isActive = location.pathname === link.to || (link.to !== '/' && location.pathname.startsWith(link.to));
+              const isMenuLink = link.to === '/menu';
+
               return (
                 <Link
                   key={link.to}
                   to={link.to}
                   onClick={() => setMobileMenuOpen(false)}
-                  className={`flex items-center justify-between py-3 px-4 rounded-2xl text-lg font-serif transition-colors ${isActive
-                      ? 'bg-gold text-forest font-bold'
+                  className={`flex items-center justify-between py-3 px-4 rounded-2xl text-lg font-serif transition-colors ${
+                    isMenuLink
+                      ? 'bg-gold text-forest font-bold shadow-sm'
                       : 'text-cream/90 hover:bg-forest-light'
-                    }`}
+                  }`}
                 >
-                  <span>{link.label}</span>
-                  <span className="text-xs uppercase tracking-widest font-sans opacity-60">Explorar</span>
+                  <span
+                    className={
+                      isActive
+                        ? isMenuLink
+                          ? 'underline decoration-forest decoration-2 underline-offset-8'
+                          : 'underline decoration-gold decoration-2 underline-offset-8 text-cream font-bold'
+                        : ''
+                    }
+                  >
+                    {link.label}
+                  </span>
+                  <span
+                    className={`text-xs uppercase tracking-widest font-sans ${
+                      isMenuLink ? 'text-forest/80 font-bold' : 'text-cream/60'
+                    }`}
+                  >
+                    Explorar
+                  </span>
                 </Link>
               );
             })}
