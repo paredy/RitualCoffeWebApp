@@ -66,7 +66,7 @@ describe('Menú público (Fastify + MongoDB aislado)', () => {
     app = fixture.createNestApplication<NestFastifyApplication>(
       new FastifyAdapter(),
     );
-    configureHttpApp(app);
+    await configureHttpApp(app);
     await app.init();
     await app.getHttpAdapter().getInstance().ready();
     for (const name of ['Category', 'Product']) {

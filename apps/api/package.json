@@ -10,6 +10,7 @@
     "build": "nest build",
     "db:prepare": "nest build && node dist/database/prepare.js",
     "db:seed": "nest build && node dist/database/seed.js",
+    "users:create-admin": "nest build && node dist/users/create-admin.js",
     "deploy": "nest deploy",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
@@ -24,14 +25,17 @@
     "test:e2e": "vitest run --config ./vitest.config.e2e.ts"
   },
   "dependencies": {
+    "@fastify/cookie": "^11.1.5",
     "@nestjs/common": "^12.0.1",
     "@nestjs/config": "^12.0.1",
     "@nestjs/core": "^12.0.1",
     "@nestjs/mongoose": "^12.0.0",
     "@nestjs/platform-express": "^12.0.1",
     "@nestjs/platform-fastify": "^12.1.3",
+    "@node-rs/argon2": "^2.2.2",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.15.1",
+    "fastify": "5.12.5",
     "mongoose": "^9.11.2",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1"

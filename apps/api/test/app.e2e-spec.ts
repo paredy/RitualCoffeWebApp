@@ -39,7 +39,7 @@ describe('API Fastify y modelos MongoDB (e2e)', () => {
     app = fixture.createNestApplication<NestFastifyApplication>(
       new FastifyAdapter(),
     );
-    configureHttpApp(app);
+    await configureHttpApp(app);
     await app.init();
     await app.getHttpAdapter().getInstance().ready();
     for (const definition of modelDefinitions) {
@@ -65,8 +65,8 @@ describe('API Fastify y modelos MongoDB (e2e)', () => {
     expect(response.body).toBe('Hello World!');
   });
 
-  it('registra las siete colecciones y sus índices', async () => {
-    expect(modelDefinitions).toHaveLength(7);
+  it('registra siete colecciones de negocio y sesiones con sus índices', async () => {
+    expect(modelDefinitions).toHaveLength(8);
     for (const definition of modelDefinitions) {
       const model = app!.get<Model<unknown>>(getModelToken(definition.name));
       const indexes = await model.collection.indexes();
@@ -83,6 +83,7 @@ describe('API Fastify y modelos MongoDB (e2e)', () => {
   it('persiste instantáneas, Decimal128, timestamps y unicidad real', async () => {
     const user = await insert('User', {
       name: 'Prueba aislada',
+      username: `test-${run.slice(0, 20)}`,
       email: `${run}@example.test`,
       passwordHash: '$argon2id$test-only',
       role: 'barista',
@@ -175,6 +176,7 @@ describe('API Fastify y modelos MongoDB (e2e)', () => {
     await expect(
       insert('User', {
         name: 'Duplicado',
+        username: `other-${run.slice(0, 20)}`,
         email: `${run}@example.test`,
         passwordHash: '$argon2id$test-only',
         role: 'barista',
