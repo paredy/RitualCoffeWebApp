@@ -1,0 +1,64 @@
+================================================================================
+GUIA PARA SINCRONIZAR LA BASE DE DATOS LOCAL DE MONGODB (RITUAL COFFEE)
+================================================================================
+
+Hola compa! Para tener la base de datos de MongoDB idéntica, completa y con todos
+los productos e imágenes del menú oficial sincronizados en tu máquina local,
+sigue estos pasos rápidos desde la raíz del proyecto (RitualCoffeWebApp):
+
+--------------------------------------------------------------------------------
+PASO 1: Descargar los últimos cambios del repositorio
+--------------------------------------------------------------------------------
+En tu terminal (PowerShell o Git Bash), ejecuta:
+
+git fetch origin
+git pull origin aloy-branch
+
+--------------------------------------------------------------------------------
+PASO 2: Levantar el contenedor de MongoDB en Docker
+--------------------------------------------------------------------------------
+Asegúrate de tener Docker Desktop abierto y en ejecución. Luego ejecuta:
+
+docker compose --env-file infrastructure/.env -f infrastructure/compose.dev.yaml up -d
+
+Verifica que el contenedor esté arriba con:
+docker ps
+
+(Deberías ver el contenedor llamado "ritual-coffee-mongodb" en estado "Up").
+
+--------------------------------------------------------------------------------
+PASO 3: Ejecutar el sembrado automático de datos (Seeder)
+--------------------------------------------------------------------------------
+Ejecuta el siguiente comando:
+
+pnpm db:seed
+
+¿Qué hace este comando?
+- Conecta a tu MongoDB local.
+- Inserta automáticamente las 6 categorías oficiales.
+- Inserta los 39 productos completos con sus notas de cata, métodos de extracción,
+  temperaturas, alérgenos, precios en formato Decimal128 y todas las fotos/imágenes.
+- Es idempotente: si ya existían, los actualiza sin duplicar.
+
+--------------------------------------------------------------------------------
+PASO 4: Iniciar el Backend y el Frontend
+--------------------------------------------------------------------------------
+Abre dos terminales:
+
+Terminal 1 (Backend NestJS / API):
+pnpm dev:api
+-> Se ejecuta en: http://localhost:3000/api/v1
+-> Puedes comprobar los productos en: http://localhost:3000/api/v1/menu/products?limit=50
+
+Terminal 2 (Frontend React / Vite):
+pnpm dev:web
+-> Se ejecuta en: http://localhost:5173
+
+--------------------------------------------------------------------------------
+PASO 5: Verificación
+--------------------------------------------------------------------------------
+- Ingresa a http://localhost:5173/menu para ver la carta pública con todos los productos.
+- Ingresa a http://localhost:5173/barista/menu para gestionar el menú como barista.
+  (Desde aquí puedes crear, editar, cambiar disponibilidad o subir fotos y se
+  guardará directamente en tu base de datos local).
+================================================================================
