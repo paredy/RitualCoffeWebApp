@@ -17,15 +17,15 @@ export function BaristaLayout() {
       <header className="sticky top-0 z-40 bg-forest border-b border-forest-light shadow-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            
+
             {/* Brand / Mode Indicator */}
             <div className="flex items-center gap-3">
               <Link to="/barista/orders" className="flex items-center gap-2.5">
-                <div className="w-10 h-10 rounded-xl overflow-hidden border border-gold/70 shrink-0">
+                <div className="w-11 h-11 rounded-xl overflow-hidden border border-gold/70 shadow-sm shrink-0 bg-forest flex items-center justify-center">
                   <img
                     src={logoImg}
                     alt="Ritual Coffee Lab Logo"
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover object-center scale-[1.7]"
                   />
                 </div>
                 <div>
@@ -48,11 +48,10 @@ export function BaristaLayout() {
                   <NavLink
                     key={item.to}
                     to={item.to}
-                    className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold tracking-wide transition-all ${
-                      isActive
+                    className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold tracking-wide transition-all ${isActive
                         ? 'bg-gold text-forest shadow-xs'
                         : 'text-cream/80 hover:text-cream hover:bg-forest-light'
-                    }`}
+                      }`}
                   >
                     <Icon className="w-4 h-4" />
                     <span>{item.label}</span>
@@ -83,9 +82,8 @@ export function BaristaLayout() {
                 <NavLink
                   key={item.to}
                   to={item.to}
-                  className={`flex flex-col items-center py-1 px-3 rounded-lg text-[10px] font-medium ${
-                    isActive ? 'text-gold' : 'text-cream/60'
-                  }`}
+                  className={`flex flex-col items-center py-1 px-3 rounded-lg text-[10px] font-medium ${isActive ? 'text-gold' : 'text-cream/60'
+                    }`}
                 >
                   <Icon className="w-4 h-4 mb-0.5" />
                   <span>{item.label}</span>

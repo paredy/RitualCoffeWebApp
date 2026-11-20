@@ -1,23 +1,12 @@
 import { useState } from 'react';
 import { NavLink, Link, Outlet, useLocation } from 'react-router';
-import { Menu, X, Clock, MapPin, Sparkles, ShoppingBag } from 'lucide-react';
+import { Menu, X, Clock, MapPin, Sparkles } from 'lucide-react';
 import { Button, WhatsAppIcon, InstagramIcon } from '../../shared/ui';
 import logoImg from '../../assets/RITUAL_Coffee_Lab_LOGO.jpeg';
-import { CustomerTrayProvider, useCustomerTray } from '../../features/menu/context/CustomerTrayContext';
-import { CustomerTrayDialog } from '../../features/menu/components/CustomerTrayDialog';
 
 export function PublicLayout() {
-  return (
-    <CustomerTrayProvider>
-      <PublicLayoutContent />
-    </CustomerTrayProvider>
-  );
-}
-
-function PublicLayoutContent() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
-  const { totalItems, totalPrice, setIsTrayOpen } = useCustomerTray();
 
   const navLinks = [
     { to: '/', label: 'Inicio' },
@@ -35,37 +24,38 @@ function PublicLayoutContent() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-20">
 
-            {/* Brand Logo & Tagline */}
-            <Link to="/" className="flex items-center gap-3.5 group">
-              <div className="w-12 h-12 rounded-xl overflow-hidden border-2 border-gold/70 shadow-md transition-transform group-hover:scale-105 bg-forest shrink-0">
+            {/* Brand Logo */}
+            <Link to="/" className="flex items-center group" aria-label="Ritual Coffee Lab - Inicio">
+              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl overflow-hidden border-2 border-gold/70 shadow-md transition-all group-hover:scale-105 bg-forest shrink-0 flex items-center justify-center">
                 <img
                   src={logoImg}
                   alt="Ritual Coffee Lab Logo"
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover object-center scale-[1.7] group-hover:scale-[1.8] transition-transform duration-300"
                 />
-              </div>
-              <div className="flex flex-col">
-                <span className="font-serif text-xl sm:text-2xl font-bold tracking-tight text-forest leading-none">
-                  Ritual Coffee
-                </span>
-                <span className="text-[11px] uppercase tracking-widest text-sage font-semibold mt-1">
-                  Specialty Coffee Lab
-                </span>
               </div>
             </Link>
 
             {/* Desktop Navigation Links */}
             <nav className="hidden lg:flex items-center space-x-1 xl:space-x-2">
               {navLinks.map((link) => {
-                const isActive = location.pathname === link.to;
+                const isActive = location.pathname === link.to || (link.to !== '/' && location.pathname.startsWith(link.to));
+                const isMenuLink = link.to === '/menu';
+
                 return (
                   <NavLink
                     key={link.to}
                     to={link.to}
-                    className={`px-3.5 py-2 text-sm font-medium rounded-full transition-all duration-200 ${isActive
-                        ? 'bg-forest text-cream shadow-xs font-semibold'
+                    className={`px-3.5 py-2 text-sm font-medium transition-all duration-200 rounded-full ${
+                      isMenuLink
+                        ? 'bg-gold text-forest font-bold shadow-xs hover:bg-gold-hover'
                         : 'text-forest/80 hover:text-forest hover:bg-forest/5'
-                      }`}
+                    } ${
+                      isActive
+                        ? isMenuLink
+                          ? 'underline decoration-forest decoration-2 underline-offset-4'
+                          : 'underline decoration-gold decoration-2 underline-offset-8 text-forest font-bold'
+                        : ''
+                    }`}
                   >
                     {link.label}
                   </NavLink>
@@ -73,26 +63,8 @@ function PublicLayoutContent() {
               })}
             </nav>
 
-            {/* Right actions: Selection Button, Menu Button & Barista Link */}
+            {/* Right actions: Menu Button & Barista Link */}
             <div className="hidden sm:flex items-center gap-2.5">
-              {totalItems > 0 && (
-                <button
-                  type="button"
-                  onClick={() => setIsTrayOpen(true)}
-                  className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-forest text-cream text-xs font-semibold hover:bg-forest/90 transition-all cursor-pointer shadow-xs border border-gold/40 hover:scale-102"
-                  title="Ver mi selección para barra"
-                >
-                  <div className="relative">
-                    <ShoppingBag className="w-4 h-4 text-gold" />
-                    <span className="absolute -top-1.5 -right-2 bg-terracotta text-cream text-[9px] font-bold w-3.5 h-3.5 rounded-full flex items-center justify-center">
-                      {totalItems}
-                    </span>
-                  </div>
-                  <span className="hidden md:inline">Mi Selección</span>
-                  <span className="text-gold font-mono font-bold">${totalPrice.toFixed(2)}</span>
-                </button>
-              )}
-
               <Link to="/menu">
                 <Button variant="gold" size="sm" rightIcon={<Sparkles className="w-3.5 h-3.5" />}>
                   Ver Carta
@@ -107,21 +79,8 @@ function PublicLayoutContent() {
               </Link>
             </div>
 
-            {/* Mobile menu trigger and Selection Cart */}
+            {/* Mobile menu trigger */}
             <div className="flex items-center gap-2 lg:hidden">
-              {totalItems > 0 && (
-                <button
-                  type="button"
-                  onClick={() => setIsTrayOpen(true)}
-                  className="p-2 rounded-xl bg-forest text-cream flex items-center justify-center relative cursor-pointer"
-                  title="Mi Selección"
-                >
-                  <ShoppingBag className="w-5 h-5 text-gold" />
-                  <span className="absolute -top-1 -right-1 bg-terracotta text-cream text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
-                    {totalItems}
-                  </span>
-                </button>
-              )}
               <Link to="/menu" className="sm:hidden">
                 <Button variant="gold" size="sm">Menú</Button>
               </Link>
@@ -143,18 +102,13 @@ function PublicLayoutContent() {
       {mobileMenuOpen && (
         <div className="fixed inset-0 z-50 lg:hidden flex flex-col bg-forest text-cream animate-in fade-in duration-200">
           {/* Mobile Drawer Header */}
-          <div className="flex items-center justify-between p-6 border-b border-forest-light">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl overflow-hidden border-2 border-gold shrink-0">
-                <img
-                  src={logoImg}
-                  alt="Ritual Coffee Lab Logo"
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <span className="font-serif text-xl font-bold tracking-tight text-cream">
-                Ritual Coffee Lab
-              </span>
+          <div className="flex items-center justify-between p-5 border-b border-forest-light">
+            <div className="w-12 h-12 rounded-2xl overflow-hidden border-2 border-gold/80 shadow-md bg-forest shrink-0 flex items-center justify-center">
+              <img
+                src={logoImg}
+                alt="Ritual Coffee Lab Logo"
+                className="w-full h-full object-cover object-center scale-[1.7]"
+              />
             </div>
             <button
               onClick={() => setMobileMenuOpen(false)}
@@ -168,19 +122,38 @@ function PublicLayoutContent() {
           {/* Navigation Links */}
           <div className="flex-1 overflow-y-auto px-6 py-8 flex flex-col space-y-4">
             {navLinks.map((link) => {
-              const isActive = location.pathname === link.to;
+              const isActive = location.pathname === link.to || (link.to !== '/' && location.pathname.startsWith(link.to));
+              const isMenuLink = link.to === '/menu';
+
               return (
                 <Link
                   key={link.to}
                   to={link.to}
                   onClick={() => setMobileMenuOpen(false)}
-                  className={`flex items-center justify-between py-3 px-4 rounded-2xl text-lg font-serif transition-colors ${isActive
-                      ? 'bg-gold text-forest font-bold'
+                  className={`flex items-center justify-between py-3 px-4 rounded-2xl text-lg font-serif transition-colors ${
+                    isMenuLink
+                      ? 'bg-gold text-forest font-bold shadow-sm'
                       : 'text-cream/90 hover:bg-forest-light'
-                    }`}
+                  }`}
                 >
-                  <span>{link.label}</span>
-                  <span className="text-xs uppercase tracking-widest font-sans opacity-60">Explorar</span>
+                  <span
+                    className={
+                      isActive
+                        ? isMenuLink
+                          ? 'underline decoration-forest decoration-2 underline-offset-8'
+                          : 'underline decoration-gold decoration-2 underline-offset-8 text-cream font-bold'
+                        : ''
+                    }
+                  >
+                    {link.label}
+                  </span>
+                  <span
+                    className={`text-xs uppercase tracking-widest font-sans ${
+                      isMenuLink ? 'text-forest/80 font-bold' : 'text-cream/60'
+                    }`}
+                  >
+                    Explorar
+                  </span>
                 </Link>
               );
             })}
@@ -223,11 +196,11 @@ function PublicLayoutContent() {
             {/* Col 1: Brand & Philosophy */}
             <div className="md:col-span-2 space-y-4">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-xl overflow-hidden border-2 border-gold/70 shrink-0">
+                <div className="w-14 h-14 rounded-2xl overflow-hidden border-2 border-gold/70 shadow-md shrink-0 bg-forest flex items-center justify-center">
                   <img
                     src={logoImg}
                     alt="Ritual Coffee Lab Logo"
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover object-center scale-[1.7]"
                   />
                 </div>
                 <span className="font-serif text-2xl font-bold tracking-tight text-cream">
@@ -300,9 +273,6 @@ function PublicLayoutContent() {
           </div>
         </div>
       </footer>
-
-      {/* Floating Customer Selection Tray Dialog */}
-      <CustomerTrayDialog />
     </div>
   );
 }

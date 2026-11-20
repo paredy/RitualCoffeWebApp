@@ -1,15 +1,17 @@
 import { Link } from 'react-router';
 import { Button } from '../../../shared/ui';
-import { INITIAL_PRODUCTS } from '../../menu/data/mockMenu';
+import { useMenuProducts } from '../../menu/api/menuApi';
 import { ProductCard } from '../../menu/components/ProductCard';
 import { ProductDetailDialog } from '../../menu/components/ProductDetailDialog';
 import { useState } from 'react';
 import type { Product } from '../../menu/types/menu';
 import { Sparkles, ArrowRight, Award, Compass, Flame, Droplets } from 'lucide-react';
+import { ChemexHeroIllustration } from '../components/ChemexHeroIllustration';
 
 export function HomePage() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const featuredProducts = INITIAL_PRODUCTS.slice(0, 3);
+  const { products } = useMenuProducts();
+  const featuredProducts = products.slice(0, 3);
 
   return (
     <div className="flex flex-col gap-16 md:gap-24 pb-16">
@@ -63,35 +65,14 @@ export function HomePage() {
               </div>
             </div>
 
-            {/* Right Column: Hero Visual Showcase */}
-            <div className="lg:col-span-5 relative">
-              <div className="relative mx-auto max-w-md lg:max-w-none">
-                {/* Main Image Frame */}
-                <div className="relative rounded-3xl overflow-hidden shadow-2xl border-2 border-gold/40 aspect-4/5">
-                  <img
-                    src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?q=80&w=1000&auto=format&fit=crop"
-                    alt="Ritual Coffee Barista Pour Over"
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute inset-0 bg-linear-to-t from-forest/80 via-transparent to-transparent" />
+            {/* Right Column: Hero Visual Showcase (Mockup Chemex Arch Illustration) */}
+            <div className="lg:col-span-5 flex justify-center items-center relative">
+              <div className="relative w-full max-w-[360px] sm:max-w-[420px] lg:max-w-[460px]">
+                <ChemexHeroIllustration className="w-full h-auto drop-shadow-2xl" />
 
-                  {/* Floating badge inside hero image */}
-                  <div className="absolute bottom-6 left-6 right-6 p-4 rounded-2xl bg-cream-light/95 backdrop-blur-md border border-gold/50 shadow-lg">
-                    <span className="text-[11px] uppercase tracking-wider font-bold text-gold block">
-                      Recomendación del Barista
-                    </span>
-                    <h4 className="font-serif text-lg font-bold text-forest mt-0.5">
-                      V60 Típica Mejorado Loja — Cosecha 2026
-                    </h4>
-                    <p className="text-xs text-sage mt-1">
-                      Cultivado a 2,050 msnm en Saraguro. Notas a jazmín silvestre, bergamota y miel de azahar.
-                    </p>
-                  </div>
-                </div>
-
-                {/* Decorative background geometry */}
-                <div className="absolute -top-4 -right-4 w-32 h-32 bg-gold/15 rounded-full blur-2xl -z-10" />
-                <div className="absolute -bottom-6 -left-6 w-40 h-40 bg-forest/10 rounded-full blur-3xl -z-10" />
+                {/* Subtle ambient lighting */}
+                <div className="absolute -top-6 -right-6 w-40 h-40 bg-gold/15 rounded-full blur-3xl -z-10 pointer-events-none" />
+                <div className="absolute -bottom-8 -left-8 w-48 h-48 bg-forest/10 rounded-full blur-3xl -z-10 pointer-events-none" />
               </div>
             </div>
 

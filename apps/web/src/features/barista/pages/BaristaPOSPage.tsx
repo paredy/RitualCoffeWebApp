@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { INITIAL_PRODUCTS } from '../../menu/data/mockMenu';
+import { useMenuProducts } from '../../menu/api/menuApi';
 import type { Product, MenuCategory } from '../../menu/types/menu';
 import { Button } from '../../../shared/ui';
 import { Coffee, Plus, Minus, CheckCircle2, ShoppingBag } from 'lucide-react';
@@ -13,13 +13,14 @@ interface CartItem {
 
 export function BaristaPOSPage() {
   const navigate = useNavigate();
+  const { products } = useMenuProducts();
   const [selectedCategory, setSelectedCategory] = useState<MenuCategory | 'todos'>('todos');
   const [cart, setCart] = useState<CartItem[]>([]);
   const [customerName, setCustomerName] = useState('');
   const [tableNumber, setTableNumber] = useState('Mesa 1');
   const [orderCreated, setOrderCreated] = useState(false);
 
-  const availableProducts = INITIAL_PRODUCTS.filter(
+  const availableProducts = products.filter(
     (p) =>
       p.isAvailable &&
       (selectedCategory === 'todos' || p.category === selectedCategory)

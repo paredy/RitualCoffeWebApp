@@ -9,6 +9,7 @@ export interface AdaptiveDialogProps {
   title?: string;
   children: ReactNode;
   maxWidth?: ModalProps['maxWidth'];
+  variant?: 'cream' | 'forest';
 }
 
 export function AdaptiveDialog({
@@ -17,6 +18,7 @@ export function AdaptiveDialog({
   title,
   children,
   maxWidth = 'xl',
+  variant = 'cream',
 }: AdaptiveDialogProps) {
   if (!isOpen) return null;
 
@@ -24,14 +26,14 @@ export function AdaptiveDialog({
     <>
       {/* Desktop View: Centered Modal */}
       <div className="hidden md:block">
-        <Modal isOpen={isOpen} onClose={onClose} title={title} maxWidth={maxWidth}>
+        <Modal isOpen={isOpen} onClose={onClose} title={title} maxWidth={maxWidth} variant={variant}>
           {children}
         </Modal>
       </div>
 
       {/* Mobile View: Bottom Sheet */}
       <div className="block md:hidden">
-        <BottomSheet isOpen={isOpen} onClose={onClose} title={title}>
+        <BottomSheet isOpen={isOpen} onClose={onClose} title={title} variant={variant}>
           {children}
         </BottomSheet>
       </div>

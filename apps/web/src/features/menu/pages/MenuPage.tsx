@@ -1,18 +1,16 @@
 import { useState, useMemo } from 'react';
 import type { MenuCategory, Product } from '../types/menu';
-import { INITIAL_PRODUCTS, MONIN_SYRUP_FLAVORS } from '../data/mockMenu';
+import { MONIN_SYRUP_FLAVORS } from '../data/mockMenu';
+import { useMenuProducts } from '../api/menuApi';
 import { ProductCard } from '../components/ProductCard';
 import { ProductDetailDialog } from '../components/ProductDetailDialog';
 import { AdaptiveDialog } from '../../../shared/ui';
-import { useCustomerTray } from '../context/CustomerTrayContext';
 import {
   Search,
   SlidersHorizontal,
   Sparkles,
   GlassWater,
   Info,
-  Check,
-  ShoppingBag,
 } from 'lucide-react';
 
 const CATEGORIES: { id: MenuCategory; label: string }[] = [
@@ -25,28 +23,35 @@ const CATEGORIES: { id: MenuCategory; label: string }[] = [
   { id: 'en-grano', label: 'Café en Grano' },
 ];
 
+const CATEGORY_ORDER: MenuCategory[] = [
+  'espresso',
+  'filtrados',
+  'frias',
+  'cocteles',
+  'pasteleria',
+  'en-grano',
+];
+
 export function MenuPage() {
+  const { products } = useMenuProducts();
   const [selectedCategory, setSelectedCategory] = useState<MenuCategory>('todos');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [onlyAvailable, setOnlyAvailable] = useState(false);
   const [isMoninModalOpen, setIsMoninModalOpen] = useState(false);
-  const [selectedSyrup, setSelectedSyrup] = useState<string | null>(null);
-
-  const { totalItems, totalPrice, setIsTrayOpen } = useCustomerTray();
 
   // Compute product counts per category
   const categoryCounts = useMemo(() => {
-    const counts: Record<string, number> = { todos: INITIAL_PRODUCTS.length };
-    for (const p of INITIAL_PRODUCTS) {
+    const counts: Record<string, number> = { todos: products.length };
+    for (const p of products) {
       counts[p.category] = (counts[p.category] || 0) + 1;
     }
     return counts;
-  }, []);
+  }, [products]);
 
   // Filter products
   const filteredProducts = useMemo(() => {
-    return INITIAL_PRODUCTS.filter((product) => {
+    return products.filter((product) => {
       // Category filter
       if (selectedCategory !== 'todos' && product.category !== selectedCategory) {
         return false;
@@ -68,7 +73,20 @@ export function MenuPage() {
       }
       return true;
     });
-  }, [selectedCategory, searchQuery, onlyAvailable]);
+  }, [products, selectedCategory, searchQuery, onlyAvailable]);
+
+  // Group by categories when in "Todos" tab (and no search query is active)
+  const groupedProducts = useMemo(() => {
+    if (selectedCategory !== 'todos' || searchQuery.trim()) {
+      return null;
+    }
+    return CATEGORY_ORDER.map((cat) => {
+      const items = products.filter(
+        (p) => p.category === cat && (!onlyAvailable || p.isAvailable)
+      );
+      return { category: cat, items };
+    }).filter((group) => group.items.length > 0);
+  }, [products, selectedCategory, searchQuery, onlyAvailable]);
 
   return (
     <div className="py-8 sm:py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-8">
@@ -190,17 +208,41 @@ export function MenuPage() {
         </div>
       )}
 
-      {/* Product Grid */}
+      {/* Product List / Paper Menu Layout */}
       {filteredProducts.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {filteredProducts.map((product) => (
-            <ProductCard
-              key={product.id}
-              product={product}
-              onSelect={(p) => setSelectedProduct(p)}
-            />
-          ))}
-        </div>
+        groupedProducts ? (
+          // In "Todos": group by categories with line dividers between them, NO category text headers
+          <div className="space-y-6 sm:space-y-8">
+            {groupedProducts.map((group, idx) => (
+              <div key={group.category}>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 lg:gap-x-12 gap-y-2 sm:gap-y-3">
+                  {group.items.map((product) => (
+                    <ProductCard
+                      key={product.id}
+                      product={product}
+                      onSelect={(p) => setSelectedProduct(p)}
+                    />
+                  ))}
+                </div>
+                {/* Horizontal line divider separating categories only */}
+                {idx < groupedProducts.length - 1 && (
+                  <div className="border-b border-gold/35 mt-6 sm:mt-8" />
+                )}
+              </div>
+            ))}
+          </div>
+        ) : (
+          // In a single category or active search: compact list without line separators
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 lg:gap-x-12 gap-y-2 sm:gap-y-3">
+            {filteredProducts.map((product) => (
+              <ProductCard
+                key={product.id}
+                product={product}
+                onSelect={(p) => setSelectedProduct(p)}
+              />
+            ))}
+          </div>
+        )
       ) : (
         <div className="text-center py-16 bg-cream-light rounded-3xl border border-cream-dark max-w-lg mx-auto p-8">
           <SlidersHorizontal className="w-10 h-10 text-sage mx-auto mb-3" />
@@ -244,33 +286,15 @@ export function MenuPage() {
           </div>
 
           <div className="flex flex-wrap gap-2 pt-1">
-            {MONIN_SYRUP_FLAVORS.map((flavor) => {
-              const isSelected = selectedSyrup === flavor;
-              return (
-                <button
-                  key={flavor}
-                  onClick={() => setSelectedSyrup(isSelected ? null : flavor)}
-                  className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-150 cursor-pointer flex items-center gap-1.5 ${
-                    isSelected
-                      ? 'bg-forest text-gold font-bold shadow-sm scale-102 border border-forest'
-                      : 'bg-cream-light hover:bg-cream-dark text-forest border border-cream-dark'
-                  }`}
-                >
-                  {isSelected && <Check className="w-3 h-3 text-gold stroke-[3]" />}
-                  <span>{flavor}</span>
-                </button>
-              );
-            })}
-          </div>
-
-          {selectedSyrup && (
-            <div className="p-3 bg-gold/15 rounded-2xl border border-gold/40 text-xs text-forest flex items-center gap-2.5">
-              <Sparkles className="w-4 h-4 text-forest shrink-0" />
-              <span>
-                Has elegido <strong className="text-forest font-bold">{selectedSyrup}</strong>. ¡Indícaselo a tu barista al pedir tu bebida en barra (+ $0.75)!
+            {MONIN_SYRUP_FLAVORS.map((flavor) => (
+              <span
+                key={flavor}
+                className="px-3 py-1.5 rounded-full text-xs font-medium bg-cream-light text-forest border border-cream-dark shadow-2xs"
+              >
+                {flavor}
               </span>
-            </div>
-          )}
+            ))}
+          </div>
 
           <div className="pt-3 border-t border-cream-dark flex justify-end">
             <button
@@ -289,27 +313,6 @@ export function MenuPage() {
         isOpen={!!selectedProduct}
         onClose={() => setSelectedProduct(null)}
       />
-
-      {/* Floating Tray / Cart Pill for quick access */}
-      {totalItems > 0 && (
-        <button
-          onClick={() => setIsTrayOpen(true)}
-          className="fixed bottom-6 right-6 z-40 inline-flex items-center gap-3 px-5 py-3 rounded-full bg-forest text-cream shadow-2xl border-2 border-gold hover:scale-105 active:scale-95 transition-all cursor-pointer animate-in fade-in slide-in-from-bottom-4 group"
-        >
-          <div className="relative">
-            <ShoppingBag className="w-5 h-5 text-gold group-hover:scale-110 transition-transform" />
-            <span className="absolute -top-2 -right-2 bg-terracotta text-cream text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
-              {totalItems}
-            </span>
-          </div>
-          <div className="text-left">
-            <span className="text-xs font-semibold block leading-tight">Mi Selección</span>
-            <span className="text-[11px] text-gold font-mono font-bold leading-none">
-              ${totalPrice.toFixed(2)} USD
-            </span>
-          </div>
-        </button>
-      )}
     </div>
   );
 }

@@ -2,12 +2,12 @@
 
 Aplicación web progresiva (**PWA**) para una cafetería. Incluye un sitio público donde los clientes consultan información y menú, y un área para baristas desde la que, cuando estén implementadas esas funcionalidades, podrán administrar productos y registrar/gestionar las órdenes del día.
 
-> **Estado actual:** proyecto en desarrollo con React + Vite + TypeScript + Tailwind CSS + React Router; NestJS + Fastify + Mongoose; MongoDB local con Docker Compose. La API ofrece lectura pública del menú y autenticación del personal por username con sesiones. Las rutas del barista en el frontend siguen siendo **pantallas provisionales sin conectar a la autenticación**. El CRUD privado, gestión real de órdenes, integración del frontend, PWA y despliegue siguen pendientes.
+> **Estado actual:** proyecto en desarrollo con React + Vite + TypeScript + Tailwind CSS + React Router; NestJS + Fastify + Mongoose; MongoDB local con Docker Compose. La API ofrece lectura pública del menú y autenticación del personal por username con sesiones. Las rutas del barista en el frontend siguen siendo **pantallas provisionales sin conectar a la autenticación**. El frontend consume el menú público y la API de administración del catálogo. La autorización de las operaciones de catálogo y la gestión real de órdenes siguen pendientes.
 
 La API incluye consulta pública de categorías y productos publicados/disponibles mediante
 `GET /api/v1/menu/categories`, `GET /api/v1/menu/products` y `GET /api/v1/menu/products/:slug`.
 Consulta los parámetros, respuestas y reglas de publicación en [la guía de endpoints públicos](docs/endpoints-publicos.md).
-El frontend todavía no consume estos endpoints.
+El frontend consume estos endpoints.
 
 El backend incluye `POST /api/v1/auth/login`, `GET /api/v1/auth/me` y
 `POST /api/v1/auth/logout`. Consulta [el contrato de autenticación e integración para frontend](docs/autenticacion.md).
@@ -18,7 +18,7 @@ Para crear el primer administrador local: `pnpm.cmd --dir apps/api users:create-
 La capa de modelos de MongoDB incluye `users`, `categories`, `products`, `orders`,
 `invoices`, `audit_logs` y `coffee_types`, además de `sessions` como colección técnica de autenticación. Consulta [el diseño de datos, las pruebas y la guía de MongoDB Compass](docs/database.md).
 Para crear las colecciones e índices en el MongoDB local configurado: `pnpm.cmd --dir apps/api db:prepare`.
-Los modelos cuentan con servicios y endpoints de lectura para el menú público. La administración del catálogo y la gestión de pedidos siguen pendientes.
+Los modelos cuentan con servicios y endpoints de lectura para el menú público. La gestión de pedidos sigue pendiente.
 
 **Vista pública (sin login)**
 - Página de inicio e información de la cafetería.
@@ -278,7 +278,7 @@ pnpm --dir apps/api test
 pnpm --dir apps/api test:e2e
 ```
 
-Las pruebas unitarias cubren los esquemas, validaciones y componentes de autenticación. Las e2e usan Fastify, verifican índices, persistencia, endpoints públicos y sesiones en la base local aislada `ritual_coffee_test`, y eliminan únicamente sus propios documentos. Sus credenciales y requisitos se explican en [la documentación de datos](docs/database.md). La autorización del futuro CRUD privado y la integración del frontend siguen pendientes.
+Las pruebas unitarias cubren los esquemas, validaciones y componentes de autenticación. Las e2e usan Fastify, verifican índices, persistencia, endpoints públicos y sesiones en la base local aislada `ritual_coffee_test`, y eliminan únicamente sus propios documentos. Sus credenciales y requisitos se explican en [la documentación de datos](docs/database.md). La autorización de las operaciones de catálogo y la integración del login en el frontend siguen pendientes.
 
 ## 9. Comandos de Docker útiles
 

@@ -1,8 +1,15 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { Product, MenuCategory } from '../../menu/types/menu';
 import { INITIAL_PRODUCTS } from '../../menu/data/mockMenu';
+import {
+  useMenuProducts,
+  createProduct,
+  updateProduct,
+  deleteProduct,
+  toggleProductAvailability,
+} from '../../menu/api/menuApi';
 import { Button, Modal, MethodIcon } from '../../../shared/ui';
-import { Plus, Search, Edit2, Trash2, AlertTriangle, Coffee, Sparkles } from 'lucide-react';
+import { Plus, Search, Edit2, Trash2, AlertTriangle, Coffee, Sparkles, Upload, X, Ban } from 'lucide-react';
 
 const EXTRACTION_METHODS = [
   { id: 'Hario V60', label: 'Hario V60', key: 'v60' },
@@ -16,15 +23,24 @@ const EXTRACTION_METHODS = [
 ];
 
 export function BaristaMenuPage() {
+  const { products: apiProducts, refetch } = useMenuProducts();
   const [products, setProducts] = useState<Product[]>(INITIAL_PRODUCTS);
+
+  useEffect(() => {
+    if (apiProducts && apiProducts.length > 0) {
+      setProducts(apiProducts);
+    }
+  }, [apiProducts]);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterCategory, setFilterCategory] = useState<MenuCategory | 'todos'>('todos');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Modal states
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [productToDelete, setProductToDelete] = useState<Product | null>(null);
+  const [priceInput, setPriceInput] = useState<string>('4.00');
 
   // Form temporary state
   const [formData, setFormData] = useState<Partial<Product>>({
@@ -37,18 +53,26 @@ export function BaristaMenuPage() {
     extractionMethod: 'Hario V60',
     isAvailable: true,
     isSpecialty: true,
+    image: '',
   });
 
   // Toggle availability directly from the list
-  const handleToggleAvailability = (id: string) => {
-    setProducts((prev) =>
-      prev.map((p) => (p.id === id ? { ...p, isAvailable: !p.isAvailable } : p))
-    );
+  const handleToggleAvailability = async (id: string) => {
+    try {
+      const updated = await toggleProductAvailability(id);
+      setProducts((prev) => prev.map((p) => (p.id === id ? updated : p)));
+      refetch();
+    } catch {
+      setProducts((prev) =>
+        prev.map((p) => (p.id === id ? { ...p, isAvailable: !p.isAvailable } : p))
+      );
+    }
   };
 
   // Open modal to add
   const handleOpenAdd = () => {
     setEditingProduct(null);
+    setPriceInput('4.00');
     setFormData({
       name: '',
       category: 'filtrados',
@@ -59,6 +83,7 @@ export function BaristaMenuPage() {
       extractionMethod: 'Hario V60',
       isAvailable: true,
       isSpecialty: true,
+      image: '',
     });
     setIsFormModalOpen(true);
   };
@@ -66,37 +91,62 @@ export function BaristaMenuPage() {
   // Open modal to edit
   const handleOpenEdit = (product: Product) => {
     setEditingProduct(product);
-    setFormData({ ...product });
+    setPriceInput(product.price !== undefined && product.price !== null ? product.price.toString() : '');
+    setFormData({ ...product, image: product.image || '' });
     setIsFormModalOpen(true);
   };
 
   // Save product (create or update)
-  const handleSaveProduct = (e: React.FormEvent) => {
+  const handleSaveProduct = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.name?.trim() || !formData.price) return;
+    const parsedPrice = parseFloat(priceInput);
+    if (!formData.name?.trim() || isNaN(parsedPrice) || parsedPrice < 0) return;
 
-    if (editingProduct) {
-      setProducts((prev) =>
-        prev.map((p) =>
-          p.id === editingProduct.id
-            ? ({ ...p, ...formData, id: editingProduct.id } as Product)
-            : p
-        )
-      );
-    } else {
-      const newProduct: Product = {
-        ...formData,
-        id: `prod-${Date.now()}`,
-        name: formData.name || 'Nuevo Producto',
-        category: (formData.category as MenuCategory) || 'filtrados',
-        price: Number(formData.price) || 4.00,
-        description: formData.description || '',
-        extractionMethod: formData.extractionMethod || 'Hario V60',
-        isAvailable: formData.isAvailable ?? true,
-      } as Product;
-      setProducts((prev) => [newProduct, ...prev]);
+    const payloadToSave: Partial<Product> = {
+      ...formData,
+      price: parsedPrice,
+    };
+
+    setIsSubmitting(true);
+    try {
+      if (editingProduct) {
+        const updated = await updateProduct(editingProduct.id, payloadToSave);
+        setProducts((prev) =>
+          prev.map((p) => (p.id === editingProduct.id ? updated : p))
+        );
+      } else {
+        const created = await createProduct(payloadToSave);
+        setProducts((prev) => [created, ...prev]);
+      }
+      setIsFormModalOpen(false);
+      refetch();
+    } catch (err) {
+      console.warn('No se pudo guardar en API, guardando en estado local:', err);
+      if (editingProduct) {
+        setProducts((prev) =>
+          prev.map((p) =>
+            p.id === editingProduct.id
+              ? ({ ...p, ...payloadToSave, id: editingProduct.id } as Product)
+              : p
+          )
+        );
+      } else {
+        const newProduct: Product = {
+          ...payloadToSave,
+          id: `prod-${Date.now()}`,
+          name: formData.name || 'Nuevo Producto',
+          category: (formData.category as MenuCategory) || 'filtrados',
+          price: parsedPrice,
+          description: formData.description || '',
+          extractionMethod: formData.extractionMethod || 'Hario V60',
+          isAvailable: formData.isAvailable ?? true,
+        } as Product;
+        setProducts((prev) => [newProduct, ...prev]);
+      }
+      setIsFormModalOpen(false);
+    } finally {
+      setIsSubmitting(false);
     }
-    setIsFormModalOpen(false);
   };
 
   // Open delete confirm
@@ -106,11 +156,17 @@ export function BaristaMenuPage() {
   };
 
   // Confirm delete
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = async () => {
     if (!productToDelete) return;
+    try {
+      await deleteProduct(productToDelete.id);
+    } catch (err) {
+      console.warn('No se pudo eliminar de la API, eliminando localmente:', err);
+    }
     setProducts((prev) => prev.filter((p) => p.id !== productToDelete.id));
     setIsDeleteModalOpen(false);
     setProductToDelete(null);
+    refetch();
   };
 
   const filtered = products.filter((p) => {
@@ -321,7 +377,18 @@ export function BaristaMenuPage() {
               </label>
               <select
                 value={formData.category}
-                onChange={(e) => setFormData({ ...formData, category: e.target.value as any })}
+                onChange={(e) => {
+                  const newCat = e.target.value as MenuCategory;
+                  let newMethod = formData.extractionMethod;
+                  if (newCat === 'espresso') {
+                    newMethod = ''; // Sin método sugerido por defecto
+                  } else if (newCat === 'filtrados') {
+                    newMethod = newMethod || 'Hario V60';
+                  } else {
+                    newMethod = '';
+                  }
+                  setFormData({ ...formData, category: newCat, extractionMethod: newMethod });
+                }}
                 className="w-full px-3 py-2.5 rounded-xl bg-cream border border-cream-dark text-forest focus:border-gold focus:outline-none text-sm"
               >
                 <option value="filtrados">Métodos Filtrados</option>
@@ -338,46 +405,160 @@ export function BaristaMenuPage() {
                 Precio ($ USD) *
               </label>
               <input
-                type="number"
+                type="text"
+                inputMode="decimal"
                 required
-                min={0}
-                step={0.25}
-                value={formData.price ?? 4.00}
-                onChange={(e) => setFormData({ ...formData, price: Number(e.target.value) })}
+                value={priceInput}
+                onChange={(e) => {
+                  const raw = e.target.value.replace(',', '.');
+                  if (raw === '' || /^\d*\.?\d*$/.test(raw)) {
+                    setPriceInput(raw);
+                  }
+                }}
+                placeholder="4.00"
                 className="w-full px-3 py-2.5 rounded-xl bg-cream border border-cream-dark text-forest focus:border-gold focus:outline-none text-sm font-mono font-semibold"
               />
             </div>
           </div>
 
-          {/* Selector de Método Recomendado con Iconos Oficiales */}
-          <div className="bg-cream p-4 rounded-2xl border border-cream-dark space-y-2.5">
-            <label className="text-xs font-semibold text-sage uppercase tracking-wider block flex items-center justify-between">
-              <span>Método Recomendado de Extracción (Con Icono)</span>
-              <span className="text-gold font-bold normal-case text-xs">
-                Seleccionado: {formData.extractionMethod || 'Ninguno'}
-              </span>
+          {/* Imagen del Producto (URL o Archivo) */}
+          <div>
+            <label className="text-xs font-semibold text-sage uppercase tracking-wider block mb-1">
+              Imagen del Producto (URL o Archivo)
             </label>
-
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
-              {EXTRACTION_METHODS.map((m) => {
-                const isSelected = formData.extractionMethod === m.id;
-                return (
-                  <button
-                    type="button"
-                    key={m.id}
-                    onClick={() => setFormData({ ...formData, extractionMethod: m.id })}
-                    className={`flex items-center gap-2 p-2.5 rounded-xl text-xs font-medium transition-all text-left cursor-pointer border ${isSelected
-                        ? 'bg-forest text-gold border-gold shadow-xs font-semibold'
-                        : 'bg-cream-light text-forest/80 border-cream-dark hover:border-gold/50 hover:bg-cream-dark/50'
-                      }`}
-                  >
-                    <MethodIcon method={m.key} className={`w-4 h-4 shrink-0 ${isSelected ? 'text-gold' : 'text-sage'}`} />
-                    <span className="truncate">{m.label}</span>
-                  </button>
-                );
-              })}
+            <div className="flex gap-2 items-center">
+              <input
+                type="text"
+                value={formData.image || ''}
+                onChange={(e) => setFormData({ ...formData, image: e.target.value })}
+                className="flex-1 px-3 py-2 rounded-xl bg-cream border border-cream-dark text-forest focus:border-gold focus:outline-none text-sm"
+                placeholder="Pega un enlace de imagen (https://...) o sube una foto"
+              />
+              <label className="px-3.5 py-2 rounded-xl bg-cream-dark hover:bg-gold/20 text-forest text-xs font-semibold cursor-pointer border border-cream-dark transition-colors flex items-center gap-1.5 shrink-0">
+                <Upload className="w-4 h-4 text-forest" />
+                <span>Subir Foto</span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      const reader = new FileReader();
+                      reader.onloadend = () => {
+                        setFormData((prev) => ({ ...prev, image: reader.result as string }));
+                      };
+                      reader.readAsDataURL(file);
+                    }
+                  }}
+                />
+              </label>
             </div>
+
+            {formData.image && (
+              <div className="mt-2.5 flex items-center gap-3 p-2.5 bg-cream-light rounded-xl border border-cream-dark">
+                <img
+                  src={formData.image}
+                  alt="Vista previa"
+                  className="w-14 h-14 rounded-lg object-cover border border-cream-dark shrink-0"
+                />
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-semibold text-forest truncate">Vista previa de imagen</p>
+                  <p className="text-[11px] text-sage truncate">
+                    {formData.image.startsWith('data:') ? 'Imagen cargada desde archivo local' : formData.image}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setFormData((prev) => ({ ...prev, image: '' }))}
+                  className="p-1.5 rounded-lg text-terracotta hover:bg-terracotta/10 text-xs font-medium cursor-pointer"
+                  title="Eliminar imagen"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            )}
           </div>
+
+          {/* Selector de Método Recomendado para Espresso & Leche (con opción 'Sin método sugerido') */}
+          {formData.category === 'espresso' && (
+            <div className="bg-cream p-4 rounded-2xl border border-cream-dark space-y-2.5">
+              <label className="text-xs font-semibold text-sage uppercase tracking-wider block flex items-center justify-between">
+                <span>Método de Filtrado (Opcional)</span>
+                <span className="text-gold font-bold normal-case text-xs">
+                  {formData.extractionMethod ? `Sugerido: ${formData.extractionMethod}` : 'Sin método sugerido'}
+                </span>
+              </label>
+
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
+                {/* Opción para no sugerir método */}
+                <button
+                  type="button"
+                  onClick={() => setFormData({ ...formData, extractionMethod: '' })}
+                  className={`flex items-center gap-2 p-2.5 rounded-xl text-xs font-medium transition-all text-left cursor-pointer border ${
+                    !formData.extractionMethod
+                      ? 'bg-forest text-gold border-gold shadow-xs font-semibold'
+                      : 'bg-cream-light text-forest/80 border-cream-dark hover:border-gold/50 hover:bg-cream-dark/50'
+                  }`}
+                >
+                  <Ban className={`w-4 h-4 shrink-0 ${!formData.extractionMethod ? 'text-gold' : 'text-sage'}`} />
+                  <span className="truncate">Sin método sugerido</span>
+                </button>
+
+                {EXTRACTION_METHODS.map((m) => {
+                  const isSelected = formData.extractionMethod === m.id;
+                  return (
+                    <button
+                      type="button"
+                      key={m.id}
+                      onClick={() => setFormData({ ...formData, extractionMethod: m.id })}
+                      className={`flex items-center gap-2 p-2.5 rounded-xl text-xs font-medium transition-all text-left cursor-pointer border ${
+                        isSelected
+                          ? 'bg-forest text-gold border-gold shadow-xs font-semibold'
+                          : 'bg-cream-light text-forest/80 border-cream-dark hover:border-gold/50 hover:bg-cream-dark/50'
+                      }`}
+                    >
+                      <MethodIcon method={m.key} className={`w-4 h-4 shrink-0 ${isSelected ? 'text-gold' : 'text-sage'}`} />
+                      <span className="truncate">{m.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Selector de Método para Categoría 'Métodos Filtrados' */}
+          {formData.category === 'filtrados' && (
+            <div className="bg-cream p-4 rounded-2xl border border-cream-dark space-y-2.5">
+              <label className="text-xs font-semibold text-sage uppercase tracking-wider block flex items-center justify-between">
+                <span>Método de Filtrado *</span>
+                <span className="text-gold font-bold normal-case text-xs">
+                  Seleccionado: {formData.extractionMethod || 'Hario V60'}
+                </span>
+              </label>
+
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
+                {EXTRACTION_METHODS.map((m) => {
+                  const isSelected = formData.extractionMethod === m.id;
+                  return (
+                    <button
+                      type="button"
+                      key={m.id}
+                      onClick={() => setFormData({ ...formData, extractionMethod: m.id })}
+                      className={`flex items-center gap-2 p-2.5 rounded-xl text-xs font-medium transition-all text-left cursor-pointer border ${
+                        isSelected
+                          ? 'bg-forest text-gold border-gold shadow-xs font-semibold'
+                          : 'bg-cream-light text-forest/80 border-cream-dark hover:border-gold/50 hover:bg-cream-dark/50'
+                      }`}
+                    >
+                      <MethodIcon method={m.key} className={`w-4 h-4 shrink-0 ${isSelected ? 'text-gold' : 'text-sage'}`} />
+                      <span className="truncate">{m.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
           <div>
             <label className="text-xs font-semibold text-sage uppercase tracking-wider block mb-1">
@@ -438,8 +619,8 @@ export function BaristaMenuPage() {
             >
               Cancelar
             </Button>
-            <Button type="submit" variant="gold">
-              {editingProduct ? 'Guardar Cambios' : 'Crear Café'}
+            <Button type="submit" variant="gold" disabled={isSubmitting}>
+              {isSubmitting ? 'Guardando...' : editingProduct ? 'Guardar Cambios' : 'Crear Café'}
             </Button>
           </div>
         </form>

@@ -16,7 +16,7 @@ export async function configureHttpApp(
         origin === undefined || settings.allowedOrigins.includes(origin),
       ),
     credentials: true,
-    methods: ['GET', 'HEAD', 'POST', 'OPTIONS'],
+    methods: ['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'X-CSRF-Token'],
   });
   app.setGlobalPrefix('api/v1');

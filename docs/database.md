@@ -3,7 +3,7 @@
 La capa de datos usa NestJS, Mongoose y MongoDB 8. Los siete modelos de negocio y el modelo técnico de sesiones están registrados
 en módulos por funcionalidad. La lectura pública del catálogo se expone mediante los
 [endpoints del menú](endpoints-publicos.md). La autenticación del personal está documentada
-en [autenticacion.md](autenticacion.md). La administración del catálogo, pagos y emisión de comprobantes electrónicos siguen pendientes.
+en [autenticacion.md](autenticacion.md). La API incluye operaciones de administración del catálogo. Los pagos y la emisión de comprobantes electrónicos siguen pendientes.
 
 ## Convenciones
 
