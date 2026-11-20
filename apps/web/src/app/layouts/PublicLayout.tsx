@@ -1,23 +1,12 @@
 import { useState } from 'react';
 import { NavLink, Link, Outlet, useLocation } from 'react-router';
-import { Menu, X, Clock, MapPin, Sparkles, ShoppingBag } from 'lucide-react';
+import { Menu, X, Clock, MapPin, Sparkles } from 'lucide-react';
 import { Button, WhatsAppIcon, InstagramIcon } from '../../shared/ui';
 import logoImg from '../../assets/RITUAL_Coffee_Lab_LOGO.jpeg';
-import { CustomerTrayProvider, useCustomerTray } from '../../features/menu/context/CustomerTrayContext';
-import { CustomerTrayDialog } from '../../features/menu/components/CustomerTrayDialog';
 
 export function PublicLayout() {
-  return (
-    <CustomerTrayProvider>
-      <PublicLayoutContent />
-    </CustomerTrayProvider>
-  );
-}
-
-function PublicLayoutContent() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
-  const { totalItems, totalPrice, setIsTrayOpen } = useCustomerTray();
 
   const navLinks = [
     { to: '/', label: 'Inicio' },
@@ -74,26 +63,8 @@ function PublicLayoutContent() {
               })}
             </nav>
 
-            {/* Right actions: Selection Button, Menu Button & Barista Link */}
+            {/* Right actions: Menu Button & Barista Link */}
             <div className="hidden sm:flex items-center gap-2.5">
-              {totalItems > 0 && (
-                <button
-                  type="button"
-                  onClick={() => setIsTrayOpen(true)}
-                  className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-forest text-cream text-xs font-semibold hover:bg-forest/90 transition-all cursor-pointer shadow-xs border border-gold/40 hover:scale-102"
-                  title="Ver mi selección para barra"
-                >
-                  <div className="relative">
-                    <ShoppingBag className="w-4 h-4 text-gold" />
-                    <span className="absolute -top-1.5 -right-2 bg-terracotta text-cream text-[9px] font-bold w-3.5 h-3.5 rounded-full flex items-center justify-center">
-                      {totalItems}
-                    </span>
-                  </div>
-                  <span className="hidden md:inline">Mi Selección</span>
-                  <span className="text-gold font-mono font-bold">${totalPrice.toFixed(2)}</span>
-                </button>
-              )}
-
               <Link to="/menu">
                 <Button variant="gold" size="sm" rightIcon={<Sparkles className="w-3.5 h-3.5" />}>
                   Ver Carta
@@ -108,21 +79,8 @@ function PublicLayoutContent() {
               </Link>
             </div>
 
-            {/* Mobile menu trigger and Selection Cart */}
+            {/* Mobile menu trigger */}
             <div className="flex items-center gap-2 lg:hidden">
-              {totalItems > 0 && (
-                <button
-                  type="button"
-                  onClick={() => setIsTrayOpen(true)}
-                  className="p-2 rounded-xl bg-forest text-cream flex items-center justify-center relative cursor-pointer"
-                  title="Mi Selección"
-                >
-                  <ShoppingBag className="w-5 h-5 text-gold" />
-                  <span className="absolute -top-1 -right-1 bg-terracotta text-cream text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
-                    {totalItems}
-                  </span>
-                </button>
-              )}
               <Link to="/menu" className="sm:hidden">
                 <Button variant="gold" size="sm">Menú</Button>
               </Link>
@@ -315,9 +273,6 @@ function PublicLayoutContent() {
           </div>
         </div>
       </footer>
-
-      {/* Floating Customer Selection Tray Dialog */}
-      <CustomerTrayDialog />
     </div>
   );
 }

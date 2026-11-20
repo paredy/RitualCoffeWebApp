@@ -4,7 +4,6 @@ import { INITIAL_PRODUCTS, MONIN_SYRUP_FLAVORS } from '../data/mockMenu';
 import { ProductCard } from '../components/ProductCard';
 import { ProductDetailDialog } from '../components/ProductDetailDialog';
 import { AdaptiveDialog } from '../../../shared/ui';
-import { useCustomerTray } from '../context/CustomerTrayContext';
 import {
   Search,
   SlidersHorizontal,
@@ -12,7 +11,6 @@ import {
   GlassWater,
   Info,
   Check,
-  ShoppingBag,
 } from 'lucide-react';
 
 const CATEGORIES: { id: MenuCategory; label: string }[] = [
@@ -32,8 +30,6 @@ export function MenuPage() {
   const [onlyAvailable, setOnlyAvailable] = useState(false);
   const [isMoninModalOpen, setIsMoninModalOpen] = useState(false);
   const [selectedSyrup, setSelectedSyrup] = useState<string | null>(null);
-
-  const { totalItems, totalPrice, setIsTrayOpen } = useCustomerTray();
 
   // Compute product counts per category
   const categoryCounts = useMemo(() => {
@@ -289,27 +285,6 @@ export function MenuPage() {
         isOpen={!!selectedProduct}
         onClose={() => setSelectedProduct(null)}
       />
-
-      {/* Floating Tray / Cart Pill for quick access */}
-      {totalItems > 0 && (
-        <button
-          onClick={() => setIsTrayOpen(true)}
-          className="fixed bottom-6 right-6 z-40 inline-flex items-center gap-3 px-5 py-3 rounded-full bg-forest text-cream shadow-2xl border-2 border-gold hover:scale-105 active:scale-95 transition-all cursor-pointer animate-in fade-in slide-in-from-bottom-4 group"
-        >
-          <div className="relative">
-            <ShoppingBag className="w-5 h-5 text-gold group-hover:scale-110 transition-transform" />
-            <span className="absolute -top-2 -right-2 bg-terracotta text-cream text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
-              {totalItems}
-            </span>
-          </div>
-          <div className="text-left">
-            <span className="text-xs font-semibold block leading-tight">Mi Selección</span>
-            <span className="text-[11px] text-gold font-mono font-bold leading-none">
-              ${totalPrice.toFixed(2)} USD
-            </span>
-          </div>
-        </button>
-      )}
     </div>
   );
 }

@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import type { Product } from '../types/menu';
 import { Badge, Card, MethodIcon } from '../../../shared/ui';
-import { Sparkles, Eye, Coffee, Plus, Check } from 'lucide-react';
-import { useCustomerTray } from '../context/CustomerTrayContext';
+import { Sparkles, Eye, Coffee } from 'lucide-react';
 
 interface ProductCardProps {
   product: Product;
@@ -10,8 +9,6 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product, onSelect }: ProductCardProps) {
-  const { addItem, getItemQuantity } = useCustomerTray();
-  const quantityInTray = getItemQuantity(product.id);
   const [imageError, setImageError] = useState(false);
 
   const formattedPrice = new Intl.NumberFormat('en-US', {
@@ -115,7 +112,7 @@ export function ProductCard({ product, onSelect }: ProductCardProps) {
         )}
       </div>
 
-      {/* Bottom price and action */}
+      {/* Bottom price and status */}
       <div className="flex items-center justify-between pt-4 mt-4 border-t border-cream-dark">
         <div>
           <span className="text-[11px] text-sage block font-sans">
@@ -130,35 +127,13 @@ export function ProductCard({ product, onSelect }: ProductCardProps) {
           </span>
         </div>
 
-        <div className="flex items-center gap-2">
-          {product.isAvailable ? (
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                addItem(product);
-              }}
-              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer shadow-2xs ${
-                quantityInTray > 0
-                  ? 'bg-forest text-gold border border-gold/40 hover:bg-forest/90 scale-102'
-                  : 'bg-cream-dark hover:bg-forest hover:text-cream text-forest'
-              }`}
-              title="Añadir a mi selección para no olvidar al pedir"
-            >
-              {quantityInTray > 0 ? (
-                <>
-                  <Check className="w-3.5 h-3.5 text-gold stroke-[3]" />
-                  <span>{quantityInTray} en lista</span>
-                </>
-              ) : (
-                <>
-                  <Plus className="w-3.5 h-3.5" />
-                  <span>Añadir</span>
-                </>
-              )}
-            </button>
-          ) : (
+        <div>
+          {!product.isAvailable ? (
             <span className="text-xs text-terracotta italic font-medium">Agotado</span>
+          ) : (
+            <span className="text-xs text-forest/70 group-hover:text-gold font-medium flex items-center gap-1 transition-colors">
+              Ver ficha
+            </span>
           )}
         </div>
       </div>

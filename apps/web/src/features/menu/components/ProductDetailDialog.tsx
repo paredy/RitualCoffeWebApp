@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import type { Product } from '../types/menu';
 import { AdaptiveDialog, Badge, MethodIcon } from '../../../shared/ui';
-import { Sparkles, MapPin, Flame, Info, CheckCircle2, XCircle, Plus, Check, Coffee } from 'lucide-react';
-import { useCustomerTray } from '../context/CustomerTrayContext';
+import { Sparkles, MapPin, Flame, Info, CheckCircle2, XCircle, Coffee } from 'lucide-react';
 
 interface ProductDetailDialogProps {
   product: Product | null;
@@ -17,8 +16,6 @@ export function ProductDetailDialog({
 }: ProductDetailDialogProps) {
   if (!product) return null;
 
-  const { addItem, getItemQuantity } = useCustomerTray();
-  const quantity = getItemQuantity(product.id);
   const [imageError, setImageError] = useState(false);
 
   const formattedPrice = new Intl.NumberFormat('en-US', {
@@ -167,33 +164,6 @@ export function ProductDetailDialog({
             <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-cream rounded-lg text-[11px] text-sage border border-cream-dark">
               <Info className="w-3 h-3 text-gold shrink-0" />
               <span>Contiene: {product.allergens.join(', ')}</span>
-            </div>
-          )}
-
-          {/* Action Row: Primary action button only (closing is handled via X icon) */}
-          {product.isAvailable && (
-            <div className="pt-3 border-t border-cream-dark mt-auto">
-              <button
-                type="button"
-                onClick={() => addItem(product)}
-                className={`w-full inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full text-xs font-semibold transition-all cursor-pointer shadow-xs ${
-                  quantity > 0
-                    ? 'bg-forest text-gold font-bold border border-gold/40'
-                    : 'bg-gold hover:bg-gold-hover text-forest font-bold'
-                }`}
-              >
-                {quantity > 0 ? (
-                  <>
-                    <Check className="w-4 h-4 text-gold stroke-[3]" />
-                    <span>En lista ({quantity})</span>
-                  </>
-                ) : (
-                  <>
-                    <Plus className="w-4 h-4" />
-                    <span>Añadir a mi Selección</span>
-                  </>
-                )}
-              </button>
             </div>
           )}
         </div>
