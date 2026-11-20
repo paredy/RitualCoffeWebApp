@@ -16,6 +16,7 @@ export function ProductDetailDialog({
 }: ProductDetailDialogProps) {
   if (!product) return null;
 
+  const isFiltrados = product.category === 'filtrados';
   const [imageError, setImageError] = useState(false);
 
   const formattedPrice = new Intl.NumberFormat('en-US', {
@@ -24,13 +25,6 @@ export function ProductDetailDialog({
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   }).format(product.price);
-
-  const displayPrice =
-    product.category === 'filtrados' &&
-    product.tastingNotes?.some((t) => t.includes('500 ml')) &&
-    product.price === 3
-      ? 'Desde $3.00'
-      : formattedPrice;
 
   return (
     <AdaptiveDialog isOpen={isOpen} onClose={onClose} maxWidth="3xl" variant="forest">
@@ -57,7 +51,7 @@ export function ProductDetailDialog({
 
         {/* Right Column: Information, Specs & Actions */}
         <div className="md:col-span-7 flex flex-col justify-between space-y-3.5">
-          {/* Header: Title, Origin, Price (with pr-12 to avoid overlap with modal close X) */}
+          {/* Header: Title, Origin, Price (omitted for filtrados) */}
           <div className="pr-10 sm:pr-12">
             {product.origin && (
               <div className="flex items-center gap-1.5 text-[11px] text-gold font-medium uppercase tracking-wider mb-1">
@@ -65,15 +59,21 @@ export function ProductDetailDialog({
                 <span className="truncate">{product.origin}</span>
               </div>
             )}
-            <h2 className="font-serif text-2xl sm:text-3xl font-bold text-cream leading-tight">
+            <h2 className="font-serif text-3xl sm:text-4xl font-normal sm:font-medium text-cream leading-tight tracking-wide">
               {product.name}
             </h2>
-            <div className="flex items-center gap-3 mt-1.5">
-              <span className="text-xl sm:text-2xl font-serif font-bold text-gold">
-                {displayPrice}
-              </span>
+            <div className="flex items-center gap-3 mt-2">
+              {!isFiltrados ? (
+                <span className="text-xl sm:text-2xl font-serif font-semibold text-gold">
+                  {formattedPrice}
+                </span>
+              ) : (
+                <span className="text-xs uppercase tracking-wider font-semibold text-gold bg-gold/15 px-3 py-1 rounded-full border border-gold/30 font-sans">
+                  Método de Filtrado Manual
+                </span>
+              )}
               {!product.isAvailable && (
-                <span className="text-xs font-semibold text-terracotta bg-terracotta/20 border border-terracotta/40 px-2 py-0.5 rounded-full">
+                <span className="text-xs font-semibold text-terracotta bg-terracotta/20 border border-terracotta/40 px-2 py-0.5 rounded-full font-sans">
                   Agotado
                 </span>
               )}
