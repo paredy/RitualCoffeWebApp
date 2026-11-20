@@ -10,7 +10,6 @@ import {
   Sparkles,
   GlassWater,
   Info,
-  Check,
 } from 'lucide-react';
 
 const CATEGORIES: { id: MenuCategory; label: string }[] = [
@@ -38,7 +37,6 @@ export function MenuPage() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [onlyAvailable, setOnlyAvailable] = useState(false);
   const [isMoninModalOpen, setIsMoninModalOpen] = useState(false);
-  const [selectedSyrup, setSelectedSyrup] = useState<string | null>(null);
 
   // Compute product counts per category
   const categoryCounts = useMemo(() => {
@@ -286,33 +284,15 @@ export function MenuPage() {
           </div>
 
           <div className="flex flex-wrap gap-2 pt-1">
-            {MONIN_SYRUP_FLAVORS.map((flavor) => {
-              const isSelected = selectedSyrup === flavor;
-              return (
-                <button
-                  key={flavor}
-                  onClick={() => setSelectedSyrup(isSelected ? null : flavor)}
-                  className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-150 cursor-pointer flex items-center gap-1.5 ${
-                    isSelected
-                      ? 'bg-forest text-gold font-bold shadow-sm scale-102 border border-forest'
-                      : 'bg-cream-light hover:bg-cream-dark text-forest border border-cream-dark'
-                  }`}
-                >
-                  {isSelected && <Check className="w-3 h-3 text-gold stroke-[3]" />}
-                  <span>{flavor}</span>
-                </button>
-              );
-            })}
-          </div>
-
-          {selectedSyrup && (
-            <div className="p-3 bg-gold/15 rounded-2xl border border-gold/40 text-xs text-forest flex items-center gap-2.5">
-              <Sparkles className="w-4 h-4 text-forest shrink-0" />
-              <span>
-                Has elegido <strong className="text-forest font-bold">{selectedSyrup}</strong>. ¡Indícaselo a tu barista al pedir tu bebida en barra (+ $0.75)!
+            {MONIN_SYRUP_FLAVORS.map((flavor) => (
+              <span
+                key={flavor}
+                className="px-3 py-1.5 rounded-full text-xs font-medium bg-cream-light text-forest border border-cream-dark shadow-2xs"
+              >
+                {flavor}
               </span>
-            </div>
-          )}
+            ))}
+          </div>
 
           <div className="pt-3 border-t border-cream-dark flex justify-end">
             <button
