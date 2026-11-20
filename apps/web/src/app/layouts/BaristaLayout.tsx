@@ -21,11 +21,11 @@ export function BaristaLayout() {
             {/* Brand / Mode Indicator */}
             <div className="flex items-center gap-3">
               <Link to="/barista/orders" className="flex items-center gap-2.5">
-                <div className="w-10 h-10 rounded-xl overflow-hidden border border-gold/70 shrink-0">
+                <div className="w-11 h-11 rounded-xl overflow-hidden border border-gold/70 shadow-sm shrink-0 bg-forest flex items-center justify-center">
                   <img
                     src={logoImg}
                     alt="Ritual Coffee Lab Logo"
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover object-center scale-[1.7]"
                   />
                 </div>
                 <div>

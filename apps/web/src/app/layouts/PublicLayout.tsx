@@ -35,22 +35,14 @@ function PublicLayoutContent() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-20">
 
-            {/* Brand Logo & Tagline */}
-            <Link to="/" className="flex items-center gap-3.5 group">
-              <div className="w-12 h-12 rounded-xl overflow-hidden border-2 border-gold/70 shadow-md transition-transform group-hover:scale-105 bg-forest shrink-0">
+            {/* Brand Logo */}
+            <Link to="/" className="flex items-center group" aria-label="Ritual Coffee Lab - Inicio">
+              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl overflow-hidden border-2 border-gold/70 shadow-md transition-all group-hover:scale-105 bg-forest shrink-0 flex items-center justify-center">
                 <img
                   src={logoImg}
                   alt="Ritual Coffee Lab Logo"
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover object-center scale-[1.7] group-hover:scale-[1.8] transition-transform duration-300"
                 />
-              </div>
-              <div className="flex flex-col">
-                <span className="font-serif text-xl sm:text-2xl font-bold tracking-tight text-forest leading-none">
-                  Ritual Coffee
-                </span>
-                <span className="text-[11px] uppercase tracking-widest text-sage font-semibold mt-1">
-                  Specialty Coffee Lab
-                </span>
               </div>
             </Link>
 
@@ -143,18 +135,13 @@ function PublicLayoutContent() {
       {mobileMenuOpen && (
         <div className="fixed inset-0 z-50 lg:hidden flex flex-col bg-forest text-cream animate-in fade-in duration-200">
           {/* Mobile Drawer Header */}
-          <div className="flex items-center justify-between p-6 border-b border-forest-light">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl overflow-hidden border-2 border-gold shrink-0">
-                <img
-                  src={logoImg}
-                  alt="Ritual Coffee Lab Logo"
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <span className="font-serif text-xl font-bold tracking-tight text-cream">
-                Ritual Coffee Lab
-              </span>
+          <div className="flex items-center justify-between p-5 border-b border-forest-light">
+            <div className="w-12 h-12 rounded-2xl overflow-hidden border-2 border-gold/80 shadow-md bg-forest shrink-0 flex items-center justify-center">
+              <img
+                src={logoImg}
+                alt="Ritual Coffee Lab Logo"
+                className="w-full h-full object-cover object-center scale-[1.7]"
+              />
             </div>
             <button
               onClick={() => setMobileMenuOpen(false)}
@@ -223,11 +210,11 @@ function PublicLayoutContent() {
             {/* Col 1: Brand & Philosophy */}
             <div className="md:col-span-2 space-y-4">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-xl overflow-hidden border-2 border-gold/70 shrink-0">
+                <div className="w-14 h-14 rounded-2xl overflow-hidden border-2 border-gold/70 shadow-md shrink-0 bg-forest flex items-center justify-center">
                   <img
                     src={logoImg}
                     alt="Ritual Coffee Lab Logo"
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover object-center scale-[1.7]"
                   />
                 </div>
                 <span className="font-serif text-2xl font-bold tracking-tight text-cream">
