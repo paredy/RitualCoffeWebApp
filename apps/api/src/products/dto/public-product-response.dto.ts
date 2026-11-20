@@ -14,6 +14,13 @@ export type PublicProductRecord = Pick<
   | 'extras'
   | 'imageUrl'
   | 'isAvailable'
+  | 'origin'
+  | 'roastLevel'
+  | 'tastingNotes'
+  | 'extractionMethod'
+  | 'temperature'
+  | 'allergens'
+  | 'isSpecialty'
 > & {
   _id: Types.ObjectId;
   category: Pick<Category, 'name' | 'slug'> & { _id: Types.ObjectId };
@@ -30,6 +37,13 @@ export interface PublicProductResponseDto {
   currency: 'USD';
   imageUrl: string | null;
   isAvailable: boolean;
+  origin?: string | null;
+  roastLevel?: string | null;
+  tastingNotes?: string[];
+  extractionMethod?: string | null;
+  temperature?: string | null;
+  allergens?: string[];
+  isSpecialty?: boolean;
   variants: Array<{
     code: string;
     name: string;
@@ -68,6 +82,13 @@ export function toPublicProduct(
     currency: 'USD',
     imageUrl: product.imageUrl,
     isAvailable: product.isAvailable,
+    origin: product.origin ?? null,
+    roastLevel: product.roastLevel ?? null,
+    tastingNotes: product.tastingNotes ?? [],
+    extractionMethod: product.extractionMethod ?? null,
+    temperature: product.temperature ?? null,
+    allergens: product.allergens ?? [],
+    isSpecialty: product.isSpecialty ?? false,
     variants: product.variants
       .filter((variant) => variant.isAvailable === true)
       .sort(

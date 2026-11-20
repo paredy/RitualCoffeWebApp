@@ -128,6 +128,52 @@ export class Product {
   })
   imageUrl!: string | null;
 
+  @Prop({
+    type: String,
+    trim: true,
+    default: null,
+  })
+  origin?: string | null;
+
+  @Prop({
+    type: String,
+    trim: true,
+    default: null,
+  })
+  roastLevel?: string | null;
+
+  @Prop({
+    type: [String],
+    default: [],
+  })
+  tastingNotes?: string[];
+
+  @Prop({
+    type: String,
+    trim: true,
+    default: null,
+  })
+  extractionMethod?: string | null;
+
+  @Prop({
+    type: String,
+    trim: true,
+    default: null,
+  })
+  temperature?: string | null;
+
+  @Prop({
+    type: [String],
+    default: [],
+  })
+  allergens?: string[];
+
+  @Prop({
+    type: Boolean,
+    default: false,
+  })
+  isSpecialty?: boolean;
+
   @Prop({ type: Boolean, default: true })
   isAvailable!: boolean;
 

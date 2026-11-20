@@ -1,6 +1,6 @@
 import { Link } from 'react-router';
 import { Button } from '../../../shared/ui';
-import { INITIAL_PRODUCTS } from '../../menu/data/mockMenu';
+import { useMenuProducts } from '../../menu/api/menuApi';
 import { ProductCard } from '../../menu/components/ProductCard';
 import { ProductDetailDialog } from '../../menu/components/ProductDetailDialog';
 import { useState } from 'react';
@@ -10,7 +10,8 @@ import { ChemexHeroIllustration } from '../components/ChemexHeroIllustration';
 
 export function HomePage() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const featuredProducts = INITIAL_PRODUCTS.slice(0, 3);
+  const { products } = useMenuProducts();
+  const featuredProducts = products.slice(0, 3);
 
   return (
     <div className="flex flex-col gap-16 md:gap-24 pb-16">
