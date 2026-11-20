@@ -8,6 +8,7 @@ export interface ModalProps {
   title?: string;
   children: ReactNode;
   maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl';
+  variant?: 'cream' | 'forest';
 }
 
 const maxWidthMap = {
@@ -26,6 +27,7 @@ export function Modal({
   title,
   children,
   maxWidth = 'xl',
+  variant = 'cream',
 }: ModalProps) {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -45,11 +47,13 @@ export function Modal({
 
   if (!isOpen) return null;
 
+  const isForest = variant === 'forest';
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-forest/70 backdrop-blur-xs transition-opacity duration-300"
+        className="fixed inset-0 bg-forest/80 backdrop-blur-xs transition-opacity duration-300"
         onClick={onClose}
         aria-hidden="true"
       />
@@ -58,18 +62,26 @@ export function Modal({
       <div
         role="dialog"
         aria-modal="true"
-        className={`relative z-10 w-full ${maxWidthMap[maxWidth]} bg-cream-light border border-gold/30 rounded-3xl p-5 sm:p-6 md:p-7 shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200`}
+        className={`relative z-10 w-full ${maxWidthMap[maxWidth]} ${
+          isForest
+            ? 'bg-forest text-cream border-2 border-gold/40 shadow-2xl'
+            : 'bg-cream-light text-forest border border-gold/30 shadow-2xl'
+        } rounded-3xl p-5 sm:p-6 md:p-7 overflow-hidden animate-in fade-in zoom-in-95 duration-200`}
       >
         <button
           onClick={onClose}
           aria-label="Cerrar modal"
-          className="absolute top-4 right-4 sm:top-5 sm:right-5 p-2 rounded-full text-sage hover:text-forest hover:bg-cream-dark transition-colors cursor-pointer z-20"
+          className={`absolute top-4 right-4 sm:top-5 sm:right-5 ${
+            isForest
+              ? 'w-9 h-9 rounded-full border border-gold/70 text-gold hover:text-forest hover:bg-gold flex items-center justify-center'
+              : 'p-2 rounded-full text-sage hover:text-forest hover:bg-cream-dark'
+          } transition-colors cursor-pointer z-20`}
         >
           <X className="w-5 h-5" />
         </button>
 
         {title && (
-          <h2 className="font-serif text-2xl font-bold text-forest mb-4 pr-10">
+          <h2 className={`font-serif text-2xl font-bold mb-4 pr-10 ${isForest ? 'text-cream' : 'text-forest'}`}>
             {title}
           </h2>
         )}

@@ -7,6 +7,7 @@ export interface BottomSheetProps {
   onClose: () => void;
   title?: string;
   children: ReactNode;
+  variant?: 'cream' | 'forest';
 }
 
 export function BottomSheet({
@@ -14,6 +15,7 @@ export function BottomSheet({
   onClose,
   title,
   children,
+  variant = 'cream',
 }: BottomSheetProps) {
   const [translateY, setTranslateY] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
@@ -83,11 +85,13 @@ export function BottomSheet({
     }
   };
 
+  const isForest = variant === 'forest';
+
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center md:hidden">
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-forest/70 backdrop-blur-xs transition-opacity duration-300"
+        className="fixed inset-0 bg-forest/80 backdrop-blur-xs transition-opacity duration-300"
         onClick={onClose}
         aria-hidden="true"
       />
@@ -100,7 +104,11 @@ export function BottomSheet({
           transform: translateY > 0 ? `translateY(${translateY}px)` : undefined,
           transition: isDragging ? 'none' : 'transform 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
         }}
-        className="relative z-10 w-full max-h-[90vh] bg-cream-light border-t-2 border-gold/40 rounded-t-3xl p-4 sm:p-6 shadow-2xl flex flex-col animate-in slide-in-from-bottom duration-300"
+        className={`relative z-10 w-full max-h-[90vh] ${
+          isForest
+            ? 'bg-forest text-cream border-t-2 border-gold/40'
+            : 'bg-cream-light text-forest border-t-2 border-gold/40'
+        } rounded-t-3xl p-4 sm:p-6 shadow-2xl flex flex-col animate-in slide-in-from-bottom duration-300`}
       >
         {/* Header & Touch Drag Handle Area */}
         <div
@@ -112,21 +120,27 @@ export function BottomSheet({
           {/* Visual pill handle with touch/click to dismiss */}
           <div
             onClick={onClose}
-            className="w-12 h-1.5 bg-sage/40 hover:bg-sage/70 active:scale-95 rounded-full mx-auto mb-3 cursor-pointer transition-all"
+            className={`w-12 h-1.5 ${
+              isForest ? 'bg-gold/60 hover:bg-gold' : 'bg-sage/40 hover:bg-sage/70'
+            } active:scale-95 rounded-full mx-auto mb-3 cursor-pointer transition-all`}
             aria-label="Deslizar para cerrar"
             title="Desliza hacia abajo para cerrar"
           />
 
           <div className="flex items-center justify-between">
             {title ? (
-              <h2 className="font-serif text-xl font-bold text-forest">
+              <h2 className={`font-serif text-xl font-bold ${isForest ? 'text-cream' : 'text-forest'}`}>
                 {title}
               </h2>
             ) : <div />}
             <button
               onClick={onClose}
               aria-label="Cerrar panel"
-              className="p-1.5 rounded-full text-sage hover:text-forest hover:bg-cream-dark transition-colors cursor-pointer"
+              className={`${
+                isForest
+                  ? 'w-8 h-8 rounded-full border border-gold/70 text-gold hover:text-forest hover:bg-gold flex items-center justify-center'
+                  : 'p-1.5 rounded-full text-sage hover:text-forest hover:bg-cream-dark'
+              } transition-colors cursor-pointer`}
             >
               <X className="w-5 h-5" />
             </button>

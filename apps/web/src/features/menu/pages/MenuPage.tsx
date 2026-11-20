@@ -23,6 +23,15 @@ const CATEGORIES: { id: MenuCategory; label: string }[] = [
   { id: 'en-grano', label: 'Café en Grano' },
 ];
 
+const CATEGORY_ORDER: MenuCategory[] = [
+  'espresso',
+  'filtrados',
+  'frias',
+  'cocteles',
+  'pasteleria',
+  'en-grano',
+];
+
 export function MenuPage() {
   const [selectedCategory, setSelectedCategory] = useState<MenuCategory>('todos');
   const [searchQuery, setSearchQuery] = useState('');
@@ -64,6 +73,19 @@ export function MenuPage() {
       }
       return true;
     });
+  }, [selectedCategory, searchQuery, onlyAvailable]);
+
+  // Group by categories when in "Todos" tab (and no search query is active)
+  const groupedProducts = useMemo(() => {
+    if (selectedCategory !== 'todos' || searchQuery.trim()) {
+      return null;
+    }
+    return CATEGORY_ORDER.map((cat) => {
+      const items = INITIAL_PRODUCTS.filter(
+        (p) => p.category === cat && (!onlyAvailable || p.isAvailable)
+      );
+      return { category: cat, items };
+    }).filter((group) => group.items.length > 0);
   }, [selectedCategory, searchQuery, onlyAvailable]);
 
   return (
@@ -186,17 +208,41 @@ export function MenuPage() {
         </div>
       )}
 
-      {/* Product Grid */}
+      {/* Product List / Paper Menu Layout */}
       {filteredProducts.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {filteredProducts.map((product) => (
-            <ProductCard
-              key={product.id}
-              product={product}
-              onSelect={(p) => setSelectedProduct(p)}
-            />
-          ))}
-        </div>
+        groupedProducts ? (
+          // In "Todos": group by categories with line dividers between them, NO category text headers
+          <div className="space-y-6 sm:space-y-8">
+            {groupedProducts.map((group, idx) => (
+              <div key={group.category}>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 lg:gap-x-12 gap-y-2 sm:gap-y-3">
+                  {group.items.map((product) => (
+                    <ProductCard
+                      key={product.id}
+                      product={product}
+                      onSelect={(p) => setSelectedProduct(p)}
+                    />
+                  ))}
+                </div>
+                {/* Horizontal line divider separating categories only */}
+                {idx < groupedProducts.length - 1 && (
+                  <div className="border-b border-gold/35 mt-6 sm:mt-8" />
+                )}
+              </div>
+            ))}
+          </div>
+        ) : (
+          // In a single category or active search: compact list without line separators
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 lg:gap-x-12 gap-y-2 sm:gap-y-3">
+            {filteredProducts.map((product) => (
+              <ProductCard
+                key={product.id}
+                product={product}
+                onSelect={(p) => setSelectedProduct(p)}
+              />
+            ))}
+          </div>
+        )
       ) : (
         <div className="text-center py-16 bg-cream-light rounded-3xl border border-cream-dark max-w-lg mx-auto p-8">
           <SlidersHorizontal className="w-10 h-10 text-sage mx-auto mb-3" />

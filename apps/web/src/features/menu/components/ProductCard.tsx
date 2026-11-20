@@ -1,7 +1,5 @@
-import { useState } from 'react';
 import type { Product } from '../types/menu';
-import { Badge, Card, MethodIcon } from '../../../shared/ui';
-import { Sparkles, Eye, Coffee } from 'lucide-react';
+import { Eye } from 'lucide-react';
 
 interface ProductCardProps {
   product: Product;
@@ -9,8 +7,6 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product, onSelect }: ProductCardProps) {
-  const [imageError, setImageError] = useState(false);
-
   const formattedPrice = new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
@@ -18,125 +14,54 @@ export function ProductCard({ product, onSelect }: ProductCardProps) {
     maximumFractionDigits: 2,
   }).format(product.price);
 
+  const displayPrice =
+    product.category === 'filtrados' &&
+    product.tastingNotes?.some((t) => t.includes('500 ml')) &&
+    product.price === 3
+      ? 'Desde $3.00'
+      : formattedPrice;
+
   return (
-    <Card
-      hoverable={product.isAvailable}
+    <div
       onClick={() => onSelect(product)}
-      className={`group flex flex-col justify-between overflow-hidden cursor-pointer transition-all duration-300 ${
-        !product.isAvailable ? 'opacity-70 grayscale-[20%]' : ''
+      className={`group flex items-start justify-between gap-3 py-2.5 sm:py-3 px-2 sm:px-3 rounded-xl cursor-pointer hover:bg-gold/10 transition-colors ${
+        !product.isAvailable ? 'opacity-70' : ''
       }`}
     >
-      <div>
-        {/* Product Image Container */}
-        <div className="relative w-full h-48 sm:h-52 rounded-xl overflow-hidden bg-cream-dark mb-4">
-          {product.image && !imageError ? (
-            <img
-              src={product.image}
-              alt={product.name}
-              onError={() => setImageError(true)}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-              loading="lazy"
-            />
-          ) : (
-            <div className="w-full h-full flex flex-col items-center justify-center text-forest/40 bg-cream-dark">
-              <Coffee className="w-10 h-10 mb-1 opacity-60" />
-              <span className="text-[11px] font-medium text-sage">Ritual Coffee Lab</span>
-            </div>
-          )}
-
-          {/* Badges on image */}
-          <div className="absolute top-2.5 left-2.5 flex flex-wrap gap-1.5 z-10">
-            {product.isSpecialty && (
-              <Badge variant="gold" size="sm" className="shadow-xs backdrop-blur-xs flex items-center gap-1">
-                <Sparkles className="w-3 h-3 text-forest" />
-                <span>Especialidad</span>
-              </Badge>
-            )}
-            {!product.isAvailable && (
-              <Badge variant="terracotta" size="sm" className="shadow-xs">
-                Agotado
-              </Badge>
-            )}
-          </div>
-
-          {/* Quick view hover icon on desktop */}
-          <div className="absolute inset-0 bg-forest/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-[2px]">
-            <span className="bg-cream text-forest text-xs font-semibold px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-md transform translate-y-2 group-hover:translate-y-0 transition-transform">
-              <Eye className="w-3.5 h-3.5" />
-              Ver Ficha Técnica
-            </span>
-          </div>
-        </div>
-
-        {/* Origin / Category text & Recommended Method */}
-        <div className="flex items-center justify-between gap-2 mb-1">
-          {product.origin ? (
-            <p className="text-xs uppercase font-medium tracking-wider text-sage line-clamp-1">
-              {product.origin}
-            </p>
-          ) : <div />}
-
-          {product.extractionMethod && (
-            <span
-              className="inline-flex items-center gap-1 text-[11px] text-forest bg-gold/15 border border-gold/30 px-2 py-0.5 rounded-full shrink-0 font-medium"
-              title={`Método recomendado: ${product.extractionMethod}`}
-            >
-              <MethodIcon method={product.extractionMethod} className="w-3.5 h-3.5 text-gold shrink-0" />
-              <span className="hidden sm:inline">{product.extractionMethod}</span>
+      {/* Left Column: Name & Description (paper-menu style) */}
+      <div className="flex-1 min-w-0 pr-1">
+        <div className="flex items-center gap-2">
+          <h3 className="font-serif text-base sm:text-lg font-normal sm:font-medium text-forest group-hover:text-gold-hover transition-colors leading-snug">
+            {product.name}
+          </h3>
+          {!product.isAvailable && (
+            <span className="text-[10px] uppercase font-bold text-terracotta bg-terracotta/10 px-1.5 py-0.2 rounded border border-terracotta/30 shrink-0">
+              Agotado
             </span>
           )}
         </div>
-
-        {/* Title */}
-        <h3 className="font-serif text-lg font-bold text-forest group-hover:text-gold-hover transition-colors line-clamp-1">
-          {product.name}
-        </h3>
-
-        {/* Description snippet */}
-        <p className="text-xs sm:text-sm text-forest/75 mt-1.5 line-clamp-3 leading-relaxed">
+        <p className="text-xs text-forest/70 mt-0.5 line-clamp-2 leading-relaxed">
           {product.description}
         </p>
-
-        {/* Tasting notes tags */}
-        {product.tastingNotes && product.tastingNotes.length > 0 && (
-          <div className="flex flex-wrap gap-1 mt-3">
-            {product.tastingNotes.slice(0, 3).map((note, idx) => (
-              <span
-                key={idx}
-                className="text-[10px] bg-cream-dark/90 text-sage px-2 py-0.5 rounded-md font-medium"
-              >
-                {note}
-              </span>
-            ))}
-          </div>
-        )}
       </div>
 
-      {/* Bottom price and status */}
-      <div className="flex items-center justify-between pt-4 mt-4 border-t border-cream-dark">
-        <div>
-          <span className="text-[11px] text-sage block font-sans">
-            {product.category === 'filtrados' && product.tastingNotes?.some((t) => t.includes('500 ml')) && product.price === 3
-              ? 'Desde'
-              : 'Precio'}
-          </span>
-          <span className="font-serif text-base sm:text-lg font-bold text-forest">
-            {product.category === 'filtrados' && product.tastingNotes?.some((t) => t.includes('500 ml')) && product.price === 3
-              ? 'Desde $3.00'
-              : formattedPrice}
-          </span>
-        </div>
-
-        <div>
-          {!product.isAvailable ? (
-            <span className="text-xs text-terracotta italic font-medium">Agotado</span>
-          ) : (
-            <span className="text-xs text-forest/70 group-hover:text-gold font-medium flex items-center gap-1 transition-colors">
-              Ver ficha
-            </span>
-          )}
-        </div>
+      {/* Right Column: Price & Eye Visualize Button */}
+      <div className="flex items-center gap-2.5 sm:gap-3 shrink-0 pt-0.5">
+        <span className="font-serif text-sm sm:text-base font-semibold text-forest/90">
+          {displayPrice}
+        </span>
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            onSelect(product);
+          }}
+          aria-label={`Ver ficha de ${product.name}`}
+          className="w-8 h-8 sm:w-9 sm:h-9 rounded-full border border-gold/80 text-gold flex items-center justify-center group-hover:bg-gold group-hover:text-forest transition-all cursor-pointer shadow-2xs hover:scale-105"
+        >
+          <Eye className="w-4 h-4 stroke-[1.75]" />
+        </button>
       </div>
-    </Card>
+    </div>
   );
 }
