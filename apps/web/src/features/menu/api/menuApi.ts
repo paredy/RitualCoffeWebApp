@@ -72,6 +72,95 @@ export async function fetchPublicProducts(limit = 50): Promise<Product[]> {
   return json.data.map(mapApiProductToProduct);
 }
 
+export async function createProduct(payload: Partial<Product>): Promise<Product> {
+  const body = {
+    name: payload.name,
+    category: payload.category || 'filtrados',
+    price: payload.price ?? 4.0,
+    description: payload.description,
+    origin: payload.origin,
+    roastLevel: payload.roastLevel,
+    tastingNotes: payload.tastingNotes,
+    extractionMethod: payload.extractionMethod,
+    temperature: payload.temperature,
+    allergens: payload.allergens,
+    isAvailable: payload.isAvailable ?? true,
+    isSpecialty: payload.isSpecialty ?? false,
+    imageUrl: payload.image,
+  };
+
+  const response = await fetch('/api/v1/barista/products', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => null);
+    throw new Error(errorData?.message || `Error al crear producto: ${response.status}`);
+  }
+
+  const json = await response.json();
+  return mapApiProductToProduct(json.data);
+}
+
+export async function updateProduct(id: string, payload: Partial<Product>): Promise<Product> {
+  const body = {
+    name: payload.name,
+    category: payload.category,
+    price: payload.price,
+    description: payload.description,
+    origin: payload.origin,
+    roastLevel: payload.roastLevel,
+    tastingNotes: payload.tastingNotes,
+    extractionMethod: payload.extractionMethod,
+    temperature: payload.temperature,
+    allergens: payload.allergens,
+    isAvailable: payload.isAvailable,
+    isSpecialty: payload.isSpecialty,
+    imageUrl: payload.image,
+  };
+
+  const response = await fetch(`/api/v1/barista/products/${encodeURIComponent(id)}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => null);
+    throw new Error(errorData?.message || `Error al actualizar producto: ${response.status}`);
+  }
+
+  const json = await response.json();
+  return mapApiProductToProduct(json.data);
+}
+
+export async function toggleProductAvailability(id: string): Promise<Product> {
+  const response = await fetch(`/api/v1/barista/products/${encodeURIComponent(id)}/toggle-availability`, {
+    method: 'PATCH',
+  });
+
+  if (!response.ok) {
+    throw new Error(`Error al cambiar disponibilidad: ${response.status}`);
+  }
+
+  const json = await response.json();
+  return mapApiProductToProduct(json.data);
+}
+
+export async function deleteProduct(id: string): Promise<boolean> {
+  const response = await fetch(`/api/v1/barista/products/${encodeURIComponent(id)}`, {
+    method: 'DELETE',
+  });
+
+  if (!response.ok) {
+    throw new Error(`Error al eliminar producto: ${response.status}`);
+  }
+
+  return true;
+}
+
 export function useMenuProducts() {
   const [products, setProducts] = useState<Product[]>(INITIAL_PRODUCTS);
   const [isLoading, setIsLoading] = useState(true);

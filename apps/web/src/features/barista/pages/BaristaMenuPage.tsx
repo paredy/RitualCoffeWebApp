@@ -1,7 +1,13 @@
 import { useState, useEffect } from 'react';
 import type { Product, MenuCategory } from '../../menu/types/menu';
 import { INITIAL_PRODUCTS } from '../../menu/data/mockMenu';
-import { useMenuProducts } from '../../menu/api/menuApi';
+import {
+  useMenuProducts,
+  createProduct,
+  updateProduct,
+  deleteProduct,
+  toggleProductAvailability,
+} from '../../menu/api/menuApi';
 import { Button, Modal, MethodIcon } from '../../../shared/ui';
 import { Plus, Search, Edit2, Trash2, AlertTriangle, Coffee, Sparkles } from 'lucide-react';
 
@@ -17,7 +23,7 @@ const EXTRACTION_METHODS = [
 ];
 
 export function BaristaMenuPage() {
-  const { products: apiProducts } = useMenuProducts();
+  const { products: apiProducts, refetch } = useMenuProducts();
   const [products, setProducts] = useState<Product[]>(INITIAL_PRODUCTS);
 
   useEffect(() => {
@@ -27,6 +33,7 @@ export function BaristaMenuPage() {
   }, [apiProducts]);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterCategory, setFilterCategory] = useState<MenuCategory | 'todos'>('todos');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Modal states
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
@@ -48,10 +55,16 @@ export function BaristaMenuPage() {
   });
 
   // Toggle availability directly from the list
-  const handleToggleAvailability = (id: string) => {
-    setProducts((prev) =>
-      prev.map((p) => (p.id === id ? { ...p, isAvailable: !p.isAvailable } : p))
-    );
+  const handleToggleAvailability = async (id: string) => {
+    try {
+      const updated = await toggleProductAvailability(id);
+      setProducts((prev) => prev.map((p) => (p.id === id ? updated : p)));
+      refetch();
+    } catch {
+      setProducts((prev) =>
+        prev.map((p) => (p.id === id ? { ...p, isAvailable: !p.isAvailable } : p))
+      );
+    }
   };
 
   // Open modal to add
@@ -79,32 +92,50 @@ export function BaristaMenuPage() {
   };
 
   // Save product (create or update)
-  const handleSaveProduct = (e: React.FormEvent) => {
+  const handleSaveProduct = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.name?.trim() || !formData.price) return;
+    if (!formData.name?.trim() || formData.price === undefined) return;
 
-    if (editingProduct) {
-      setProducts((prev) =>
-        prev.map((p) =>
-          p.id === editingProduct.id
-            ? ({ ...p, ...formData, id: editingProduct.id } as Product)
-            : p
-        )
-      );
-    } else {
-      const newProduct: Product = {
-        ...formData,
-        id: `prod-${Date.now()}`,
-        name: formData.name || 'Nuevo Producto',
-        category: (formData.category as MenuCategory) || 'filtrados',
-        price: Number(formData.price) || 4.00,
-        description: formData.description || '',
-        extractionMethod: formData.extractionMethod || 'Hario V60',
-        isAvailable: formData.isAvailable ?? true,
-      } as Product;
-      setProducts((prev) => [newProduct, ...prev]);
+    setIsSubmitting(true);
+    try {
+      if (editingProduct) {
+        const updated = await updateProduct(editingProduct.id, formData);
+        setProducts((prev) =>
+          prev.map((p) => (p.id === editingProduct.id ? updated : p))
+        );
+      } else {
+        const created = await createProduct(formData);
+        setProducts((prev) => [created, ...prev]);
+      }
+      setIsFormModalOpen(false);
+      refetch();
+    } catch (err) {
+      console.warn('No se pudo guardar en API, guardando en estado local:', err);
+      if (editingProduct) {
+        setProducts((prev) =>
+          prev.map((p) =>
+            p.id === editingProduct.id
+              ? ({ ...p, ...formData, id: editingProduct.id } as Product)
+              : p
+          )
+        );
+      } else {
+        const newProduct: Product = {
+          ...formData,
+          id: `prod-${Date.now()}`,
+          name: formData.name || 'Nuevo Producto',
+          category: (formData.category as MenuCategory) || 'filtrados',
+          price: Number(formData.price) || 4.00,
+          description: formData.description || '',
+          extractionMethod: formData.extractionMethod || 'Hario V60',
+          isAvailable: formData.isAvailable ?? true,
+        } as Product;
+        setProducts((prev) => [newProduct, ...prev]);
+      }
+      setIsFormModalOpen(false);
+    } finally {
+      setIsSubmitting(false);
     }
-    setIsFormModalOpen(false);
   };
 
   // Open delete confirm
@@ -114,11 +145,17 @@ export function BaristaMenuPage() {
   };
 
   // Confirm delete
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = async () => {
     if (!productToDelete) return;
+    try {
+      await deleteProduct(productToDelete.id);
+    } catch (err) {
+      console.warn('No se pudo eliminar de la API, eliminando localmente:', err);
+    }
     setProducts((prev) => prev.filter((p) => p.id !== productToDelete.id));
     setIsDeleteModalOpen(false);
     setProductToDelete(null);
+    refetch();
   };
 
   const filtered = products.filter((p) => {
@@ -446,8 +483,8 @@ export function BaristaMenuPage() {
             >
               Cancelar
             </Button>
-            <Button type="submit" variant="gold">
-              {editingProduct ? 'Guardar Cambios' : 'Crear Café'}
+            <Button type="submit" variant="gold" disabled={isSubmitting}>
+              {isSubmitting ? 'Guardando...' : editingProduct ? 'Guardar Cambios' : 'Crear Café'}
             </Button>
           </div>
         </form>

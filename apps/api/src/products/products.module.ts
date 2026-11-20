@@ -3,6 +3,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { CategoriesModule } from '../categories/categories.module.js';
 import { ProductsService } from './products.service.js';
 import { PublicProductsController } from './public-products.controller.js';
+import { BaristaProductsController } from './barista-products.controller.js';
 import { Product, ProductSchema } from './schemas/product.schema.js';
 
 @Module({
@@ -15,7 +16,7 @@ import { Product, ProductSchema } from './schemas/product.schema.js';
       },
     ]),
   ],
-  controllers: [PublicProductsController],
+  controllers: [PublicProductsController, BaristaProductsController],
   providers: [ProductsService],
   exports: [MongooseModule],
 })
