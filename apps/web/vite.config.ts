@@ -7,6 +7,12 @@ export default defineConfig({
   server: {
     host: true, // Expone el servidor en la red local (0.0.0.0)
     port: 5173,
+    proxy: {
+      '/api': {
+        target: 'http://127.0.0.1:3000',
+        changeOrigin: true,
+      },
+    },
   },
   plugins: [
     react(),

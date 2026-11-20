@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import type { MenuCategory, Product } from '../types/menu';
-import { INITIAL_PRODUCTS, MONIN_SYRUP_FLAVORS } from '../data/mockMenu';
+import { MONIN_SYRUP_FLAVORS } from '../data/mockMenu';
+import { useMenuProducts } from '../api/menuApi';
 import { ProductCard } from '../components/ProductCard';
 import { ProductDetailDialog } from '../components/ProductDetailDialog';
 import { AdaptiveDialog } from '../../../shared/ui';
@@ -32,6 +33,7 @@ const CATEGORY_ORDER: MenuCategory[] = [
 ];
 
 export function MenuPage() {
+  const { products } = useMenuProducts();
   const [selectedCategory, setSelectedCategory] = useState<MenuCategory>('todos');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
@@ -40,16 +42,16 @@ export function MenuPage() {
 
   // Compute product counts per category
   const categoryCounts = useMemo(() => {
-    const counts: Record<string, number> = { todos: INITIAL_PRODUCTS.length };
-    for (const p of INITIAL_PRODUCTS) {
+    const counts: Record<string, number> = { todos: products.length };
+    for (const p of products) {
       counts[p.category] = (counts[p.category] || 0) + 1;
     }
     return counts;
-  }, []);
+  }, [products]);
 
   // Filter products
   const filteredProducts = useMemo(() => {
-    return INITIAL_PRODUCTS.filter((product) => {
+    return products.filter((product) => {
       // Category filter
       if (selectedCategory !== 'todos' && product.category !== selectedCategory) {
         return false;
@@ -71,7 +73,7 @@ export function MenuPage() {
       }
       return true;
     });
-  }, [selectedCategory, searchQuery, onlyAvailable]);
+  }, [products, selectedCategory, searchQuery, onlyAvailable]);
 
   // Group by categories when in "Todos" tab (and no search query is active)
   const groupedProducts = useMemo(() => {
@@ -79,12 +81,12 @@ export function MenuPage() {
       return null;
     }
     return CATEGORY_ORDER.map((cat) => {
-      const items = INITIAL_PRODUCTS.filter(
+      const items = products.filter(
         (p) => p.category === cat && (!onlyAvailable || p.isAvailable)
       );
       return { category: cat, items };
     }).filter((group) => group.items.length > 0);
-  }, [selectedCategory, searchQuery, onlyAvailable]);
+  }, [products, selectedCategory, searchQuery, onlyAvailable]);
 
   return (
     <div className="py-8 sm:py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-8">

@@ -10,6 +10,7 @@
     "rebuild": "pnpm run clean && pnpm run build",
     "dev:web": "pnpm --dir apps/web dev",
     "dev:api": "pnpm --dir apps/api start:dev",
+    "db:seed": "pnpm --dir apps/api db:seed",
     "build:web": "pnpm --dir apps/web build",
     "build:api": "pnpm --dir apps/api build"
   }

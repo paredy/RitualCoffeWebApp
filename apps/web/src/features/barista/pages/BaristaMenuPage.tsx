@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { Product, MenuCategory } from '../../menu/types/menu';
 import { INITIAL_PRODUCTS } from '../../menu/data/mockMenu';
+import { useMenuProducts } from '../../menu/api/menuApi';
 import { Button, Modal, MethodIcon } from '../../../shared/ui';
 import { Plus, Search, Edit2, Trash2, AlertTriangle, Coffee, Sparkles } from 'lucide-react';
 
@@ -16,7 +17,14 @@ const EXTRACTION_METHODS = [
 ];
 
 export function BaristaMenuPage() {
+  const { products: apiProducts } = useMenuProducts();
   const [products, setProducts] = useState<Product[]>(INITIAL_PRODUCTS);
+
+  useEffect(() => {
+    if (apiProducts && apiProducts.length > 0) {
+      setProducts(apiProducts);
+    }
+  }, [apiProducts]);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterCategory, setFilterCategory] = useState<MenuCategory | 'todos'>('todos');
 

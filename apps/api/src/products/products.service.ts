@@ -28,6 +28,13 @@ const publicProjection = {
   extras: 1,
   imageUrl: 1,
   isAvailable: 1,
+  origin: 1,
+  roastLevel: 1,
+  tastingNotes: 1,
+  extractionMethod: 1,
+  temperature: 1,
+  allergens: 1,
+  isSpecialty: 1,
 };
 interface ProductPage {
   data: PublicProductRecord[];
